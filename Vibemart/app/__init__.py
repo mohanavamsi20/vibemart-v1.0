@@ -7,3 +7,5 @@ app.config.from_object('config.Config')
 
 # Initialize MySQL
 mysql = MySQL(app)
+
+from app import routes

@@ -4,7 +4,7 @@ from app import app, mysql
 
 @app.route('/')
 def index():
-    return render_template('index-1.html')
+    return render_template('home.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
