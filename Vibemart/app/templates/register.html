@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}
+<title>Vibemart - REGISTER</title>
+{% endblock title %}
+
+{% block content %}
+<main class="main">
+    <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('./static/assets/images/backgrounds/login-bg.jpg')">
+        <div class="container">
+            <div class="form-box">
+                <div class="form-tab">
+                    <ul class="nav nav-pills nav-fill" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link">SIGN UP</a>
+                        </li>
+                    </ul>
+                        <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
+                            <form method="POST" action="/register">
+                                {{ forms.csrf_token }}
+                                <!-- {% for message in get_flashed_messages() %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {{ message }}
+                                    </div>
+                                {% endfor %} -->
+                                {% if success_message %}
+                                    <div class="alert alert-success" role="alert">
+                                        {{ success_message }}
+                                    </div>
+                                {% endif %}
+
+                                {% if forms.errors %}
+                                    <div class="alert alert-danger" role="alert">
+                                        {% for field_errors in forms.errors.values() %}
+                                            {% for error in field_errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-group">
+                                    <label for="register-email-2">Your email address *</label>
+                                    {{ forms.email(class="form-control", id="register-email-2",required=True) }}
+                                    <!-- <input type="email" class="form-control" id="register-email-2" name="register-email" required> -->
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="register-password-2">Password *</label>
+                                    {{ forms.password(class="form-control", id="register-password-2",required=True) }}
+                                </div>
+
+                                <div class="form-footer">
+                                    {{ forms.submit(class="btn btn-outline-primary-2",type="submit") }}
+                                    <!-- <button type="submit" id="submit" class="btn btn-outline-primary-2">
+                                        <span>REGISTER</span>
+                                        <i class="icon-long-arrow-right"></i>
+                                    </button> -->
+
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="register-policy-2" required>
+                                        <label class="custom-control-label" for="register-policy-2">I agree to the <a href="#">privacy policy</a> *</label>
+                                    </div>
+                                </div>
+                                <label class="custom-control-label" for="register-policy-2">have an account? <a href="/login">login</a></label>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}
