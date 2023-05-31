@@ -37,22 +37,24 @@
                                         {% endfor %}
                                     </div>
                                 {% endif %}
-
+                                
                                 <div class="form-group">
                                     <label for="singin-email">Username or email address *</label>
-                                    <input type="text" class="form-control" id="singin-email" name="singin-email" required>
+                                    {{forms.email(class="form-control", id="singin-email", required=True) }}
                                 </div>
 
                                 <div class="form-group">
                                     <label for="singin-password">Password *</label>
-                                    <input type="password" class="form-control" id="singin-password" name="singin-password" required>
+                                    {{forms.password(class="form-control", id="singin-password", required=True) }}
                                 </div>
 
                                 <div class="form-footer">
-                                    <button type="submit" class="btn btn-outline-primary-2">
+
+                                    {{forms.submit(class="btn btn-outline-primary-2",type="submit") }}
+                                    <!-- <button type="submit" class="btn btn-outline-primary-2">
                                         <span>LOG IN</span>
                                         <i class="icon-long-arrow-right"></i>
-                                    </button>
+                                    </button> -->
 
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input" id="signin-remember">

@@ -11,7 +11,6 @@ def home():
 def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
-        flash('Login successful!', 'success')
         return redirect(url_for('success'))
     return render_template('login.html', forms=login_form)
 
@@ -26,17 +25,3 @@ def register():
 @app.route('/success')
 def success():
     return render_template('Index.html')
-
-# @app.route('/', methods=['GET', 'POST'])
-# def login():
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         email = form.email.data
-#         password = form.password.data
-#         return redirect(url_for('success'))
-#     return render_template('home.html', form=form)
-
-# @app.route('/register')
-# def register():
-#     form = RegisterForm()
-#     return render_template('register.html')

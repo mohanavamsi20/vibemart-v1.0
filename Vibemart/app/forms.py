@@ -7,7 +7,7 @@ from app import db
 class LoginForm(FlaskForm):
     email = StringField('signin-email', validators=[InputRequired(), Length(min=4, max=120)])
     password = PasswordField('signin-password', validators=[InputRequired(), Length(min=4, max=60)])
-    submit = SubmitField('login')   
+    submit = SubmitField('LOGIN')   
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
