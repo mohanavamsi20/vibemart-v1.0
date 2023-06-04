@@ -4,6 +4,9 @@
 <title>Vibemart - Login</title>
 {% endblock title %}
 
+{% if 'user_id' in session %}
+    {% set redirect_url = url_for('/') %}
+{% endif %}
 {% block content %}
 <main class="main">
     <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('./static/assets/images/backgrounds/login-bg.png')">

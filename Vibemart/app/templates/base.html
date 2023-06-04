@@ -55,6 +55,18 @@
                                 <p>Cart</p>
                             </a>
                         </div>
+                        {% if 'user_id' in session %}
+                        <div class="account">
+                            <a href="/account" title="My account">
+                                <div class="icon">
+                                    <i class="icon-user"></i>
+                                </div>
+                                <p>My Account</p>
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if not 'user_id' in session %}
                         <div class="account">
                             <a href="/login" title="My account">
                                 <div class="icon">
@@ -63,6 +75,7 @@
                                 <p>Login</p>
                             </a>
                         </div>
+                        {% endif %}
 
                     </div>
                 </div>
