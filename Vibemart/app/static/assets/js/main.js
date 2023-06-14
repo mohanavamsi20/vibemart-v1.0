@@ -780,3 +780,16 @@ $(document).ready(function () {
         }, 10000)
     }
 });
+
+function displayEditForm() {
+    var editForm = document.getElementById('editForm');
+    if (editForm.style.display === 'none') {
+        editForm.style.display = 'block'; // Show the form
+        document.getElementById('userInfo').style.display = 'none';
+        editLink.textContent = 'Close';
+    } else {
+        editForm.style.display = 'none'; // Hide the form
+        editLink.textContent = 'Edit';
+        document.getElementById('userInfo').style.display = 'block';
+    }
+}

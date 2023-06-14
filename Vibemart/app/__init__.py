@@ -1,3 +1,4 @@
+import logging
 from flask import Flask
 from flask_wtf.csrf import CSRFProtect
 from flask_sqlalchemy import SQLAlchemy
@@ -12,6 +13,8 @@ from app.models import User
 with app.app_context():
     db.create_all()
 
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 csrf = CSRFProtect(app)
 

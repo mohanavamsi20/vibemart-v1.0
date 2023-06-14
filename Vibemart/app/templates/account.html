@@ -9,7 +9,6 @@
 
 {% block content %}
 <main class="main">
-
     <div class="page-content">
         <div class="dashboard">
             <div class="container">
@@ -17,7 +16,7 @@
                     <aside class="col-md-4 col-lg-3">
                         <ul class="nav nav-dashboard flex-column mb-3 mb-md-0" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="true">Dashboard</a>
+                                <a class="nav-link   " id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="true">Dashboard</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
@@ -57,79 +56,224 @@
 
                             <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
                                 <p>The following addresses will be used on the checkout page by default.</p>
+                                <br>
 
                                 <div class="row">
-                                    <div class="col-lg-6">
+                                    <div class="col-lg-12">
                                         <div class="card card-dashboard">
                                             <div class="card-body">
-                                                <h3 class="card-title">Billing Address</h3><!-- End .card-title -->
+                                                <h3 class="card-title">Billing and Shipping Address</h3>
+                                                
+                                                {% for account in accounts%} 
+                                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                                        {% if messages %}
+                                                            {% for category, message in messages %}
+                                                                {% if category == 'address_success' %}
+                                                                    <div class="alert alert-success" role="alert">
+                                                                        {{ message }}
+                                                                    </div>
+                                                                {% elif category == 'address_danger' %}
+                                                                    <div class="alert alert-danger" role="alert">
+                                                                        {{ message }}
+                                                                    </div>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        {% endif %}
+                                                    {% endwith %}
+                                                <div id="editContainer">
+                                                    {% if account.firstname != '' %}
+                                                        <a href="#" id="editLink" onclick="displayEditForm()">Edit</a>
+                                                        <p><label for="name">Full Name: </label> {{ account.firstname }} {{ account.lastname }}</p>
+                                                        <div id="userInfo">
+                                                            <p><label for="email">Email: </label> {{ account.email }}</p>
+                                                            <p><label for="phone">Phone: </label> {% if account.phone is none%} {% else %}{{ account.phone }} {% endif %}</p>
+                                                            <p><label for="address_line1">Address Line 1: </label> {% if account.address_line1 is none%} {% else %}{{ account.address_line1 }} {% endif %}</p>
+                                                            <p><label for="address_line2">Address Line 2: </label> {% if account.address_line2 is none%} {% else %}{{ account.address_line2 }} {% endif %}</p>
+                                                            <p><label for="country">Country: </label> {% if account.country is none%} {% else %}{{ account.country }} {% endif %}</p>
+                                                            <p><label for="state">State: </label> {% if account.state is none%} {% else %}{{ account.state }} {% endif %}</p>
+                                                            <p><label for="city">City: </label> {% if account.city is none%} {% else %}{{ account.city }} {% endif %}</p>
+                                                            <p><label for="zip">Zip: </label> {% if account.zipcode is none%} {% else %}{{ account.zipcode }} {% endif %}</p>
+                                                        </div>
+                                                    {% else %}
+                                                    <p>Please Update account before entering shipping address</p>
+                                                    {% endif %}
+                                                    <form id="editForm" style="display: none;" action="/account" method="POST">
+                                                        {{address_form.csrf_token}}
+                                                        {% if address_form.errors %}
+                                                            <div class="alert alert-danger" role="alert">
+                                                                {% for field_errors in address_form.errors.values() %}
+                                                                    {% for error in field_errors %}
+                                                                        {{ error }}
+                                                                    {% endfor %}
+                                                                {% endfor %}
+                                                            </div>
+                                                        {% endif %}
+                                                        <div class="row">
+                                                            <div class="col-sm-6">
+                                                                <label for="address_line1">Address Line 1 *</label>
+                                                                {% if account.address_line1 is not none %}
+                                                                    {{address_form.address_line1(class="form-control", required="required", value=account.address_line1)}}
+                                                                {% else %}
+                                                                    {{address_form.address_line1(class="form-control", required="required")}}
+                                                                {% endif %}
+                                                                <!-- {{address_form.address_line1(class="form-control", required="required")}} -->
+                                                                <br>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label for="address_line2">Address Line 2 *</label>
+                                                                {% if account.address_line2 is not none %}
+                                                                    {{address_form.address_line2(class="form-control", required="required", value=account.address_line2)}}
+                                                                {% else %}
+                                                                    {{address_form.address_line2(class="form-control", required="required")}}
+                                                                {% endif %}
+                                                                <br>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-6">
+                                                                <label for="country">Country</label>
+                                                                {% if account.country is not none %}
+                                                                    {{address_form.country(class="form-control", required="required", value=account.country)}}
+                                                                {% else %}
+                                                                    {{address_form.country(class="form-control", required="required")}}
+                                                                {% endif %}
+                                                                <br>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label for="state">State</label>
+                                                                {% if account.state is not none %}
+                                                                    {{address_form.state(class="form-control", required="required", value=account.state)}}
+                                                                {% else %}
+                                                                    {{address_form.state(class="form-control", required="required")}}
+                                                                {% endif %}
+                                                                <br>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-sm-6">
+                                                                <label for="city">City</label>
+                                                                {% if account.city is not none %}
+                                                                    {{address_form.city(class="form-control", required="required", value=account.city)}}
+                                                                {% else %}
+                                                                    {{address_form.city(class="form-control", required="required")}}
+                                                                {% endif %}
+                                                                <br>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <label for="zip">Zip</label>
+                                                                {% if account.zipcode is not none %}
+                                                                    {{address_form.zip_code(class="form-control", required="required", value=account.zipcode)}}
+                                                                {% else %}
+                                                                    {{address_form.zip_code(class="form-control", required="required")}}
+                                                                {% endif %}
+                                                                <br>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <!-- <select id="citySelect" onchange="getZipCodes()" class="form-control">
+                                                            <option value="">Select City</option>
+                                                        </select> -->
 
-                                                <p>User Name<br>
-                                                User Company<br>
-                                                John str<br>
-                                                New York, NY 10001<br>
-                                                1-234-987-6543<br>
-                                                yourmail@mail.com<br>
-                                                <a href="#">Edit <i class="icon-edit"></i></a></p>
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .card-dashboard -->
-                                    </div><!-- End .col-lg-6 -->
+                                                        <label for="phone">Phone</label>
+                                                        {% if account.phone is not none %}
+                                                            {{address_form.phone(class="form-control", required="required", value=account.phone)}}
+                                                        {% else %}
+                                                            {{address_form.phone(class="form-control", required="required")}}
+                                                        {% endif %}
+                                                        <br>
+                                                        {{address_form.submit()}}
+                                                    </form>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                                    <div class="col-lg-6">
-                                        <div class="card card-dashboard">
-                                            <div class="card-body">
-                                                <h3 class="card-title">Shipping Address</h3><!-- End .card-title -->
-
-                                                <p>You have not set up this type of address yet.<br>
-                                                <a href="#">Edit <i class="icon-edit"></i></a></p>
-                                            </div><!-- End .card-body -->
-                                        </div><!-- End .card-dashboard -->
-                                    </div><!-- End .col-lg-6 -->
-                                </div><!-- End .row -->
-                            </div><!-- .End .tab-pane -->
 
                             <div class="tab-pane fade" id="tab-account" role="tabpanel" aria-labelledby="tab-account-link">
-                                <form action="#">
+                                <form action="/account" method="POST">
+                                    {{ forms.csrf_token }}
+                                    {% for account in accounts%}
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'success' %}
+                                                    <div class="alert alert-success" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                {% elif category == 'danger' %}
+                                                    <div class="alert alert-danger" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
+
+
+
+                                    {% if forms.errors %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {% for field_errors in forms.errors.values() %}
+                                                {% for error in field_errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <label>First Name *</label>
-                                            <input type="text" class="form-control" required>
+                                            {% if account.firstname is not none %}
+                                                {{ forms.firstname(class="form-control",value=account.firstname) }}
+                                            {% else %}
+                                                {{ forms.firstname(class="form-control") }}
+                                            {% endif %}
                                         </div><!-- End .col-sm-6 -->
 
                                         <div class="col-sm-6">
                                             <label>Last Name *</label>
-                                            <input type="text" class="form-control" required>
+                                            {% if account.lastname is not none %}
+                                                {{ forms.lastname(class="form-control",value=account.lastname) }}
+                                            {% else %}
+                                                {{ forms.lastname(class="form-control") }}
+                                            {% endif %}
                                         </div><!-- End .col-sm-6 -->
                                     </div><!-- End .row -->
 
                                     <label>Display Name *</label>
-                                    <input type="text" class="form-control" required>
+                                    {% if account.displayname is not none %}
+                                        {{ forms.displayname(class="form-control",value=account.displayname) }}
+                                    {% else %}
+                                        {{ forms.displayname(class="form-control") }}
+                                    {% endif %}
                                     <small class="form-text">This will be how your name will be displayed in the account section and in reviews</small>
 
                                     <label>Email address *</label>
-                                    <input type="email" class="form-control" required>
+                                    {{ forms.email(class="form-control",value=user_id) }}
 
                                     <label>Current password (leave blank to leave unchanged)</label>
-                                    <input type="password" class="form-control">
+                                    {{ forms.current_password(class="form-control") }}
 
                                     <label>New password (leave blank to leave unchanged)</label>
-                                    <input type="password" class="form-control">
+                                    {{ forms.new_password(class="form-control") }}
 
                                     <label>Confirm new password</label>
-                                    <input type="password" class="form-control mb-2">
-
-                                    <button type="submit" class="btn btn-outline-primary-2">
-                                        <span>SAVE CHANGES</span>
-                                        <i class="icon-long-arrow-right"></i>
-                                    </button>
+                                    {{ forms.confirm_password(class="form-control") }}
+                                
+                                    {{ forms.submit() }}
+                                    {% endfor %}
                                 </form>
-                            </div><!-- .End .tab-pane -->
+                            </div>
                         </div>
-                    </div><!-- End .col-lg-9 -->
-                </div><!-- End .row -->
-            </div><!-- End .container -->
-        </div><!-- End .dashboard -->
-    </div><!-- End .page-content -->
-</main><!-- End .main -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
 {% endblock content %}
 
