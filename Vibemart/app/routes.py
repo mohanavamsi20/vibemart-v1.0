@@ -44,6 +44,7 @@ def account():
     seller_items = SelleritemsForm()
     user_id = session['user_id']
     accounts = Account.query.filter_by(email=user_id).all()
+    print(accounts)
     selleritems = Seller_items.query.filter_by(seller_id=accounts[0].id).all()
     if address_form.validate_on_submit():
         address_details(user_id, address_form)

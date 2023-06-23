@@ -37,7 +37,7 @@
                                 <a class="nav-link" href="/logout">Sign Out</a>
                             </li>
                         </ul>
-                    </aside><!-- End .col-lg-3 -->
+                    </aside>
 
                     <div class="col-md-8 col-lg-9">
                         <div class="tab-content">
@@ -57,7 +57,7 @@
                             </div>
 
                             <div class="tab-pane fade" id="tab-items" role="tabpanel" aria-labelledby="tab-items-link">
-                                {% for selleritem in selleritems %}
+                                
                                     
                                     {% with messages = get_flashed_messages(with_categories=true) %}
                                         {% if messages %}
@@ -74,96 +74,201 @@
                                             {% endfor %}
                                         {% endif %}
                                     {% endwith %}
-                                <div id="editContainer">
-                                    {% if selleritem.item_name != '' %}
-                                    <a href="#" id="editItemLink" onclick="displayItemEditForm()">View</a>
+
+                                    <a href="#" id="editItemLink" onclick="displayItemEditForm()">Add</a>
                                     <div id="sellerItemInfo">
-                                        <p><label for="email">Item Name: </label> {{ selleritem.item_name}}</p>
-                                    </div>
-                                {% else %}
-                                <p>Add Item for the Shop</p>
-                                {% endif %}
-                                <form id='editItem' style="display: none;" action="/account" method="POST">
-                                    {{ seller_items.csrf_token() }}
-                                    {% if seller_items.errors %}
-                                        <div class="alert alert-danger" role="alert">
-                                            {% for field_errors in seller_items.errors.values() %}
-                                                {% for error in field_errors %}
-                                                    {{ error }}
-                                                {% endfor %}
-                                            {% endfor %}
+                                    {% if selleritems|length == 0 %}
+                                        <p> No item has been added yet. </p>
+                                    {% else %}
+                                    <div class="page-content">
+                                        <div class="col-sm-60">
+                                            <table class="table table-wishlist table-mobile">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product</th>
+                                                        <th>Price</th>
+                                                        <th>Stock Status</th>
+                                                        <th>Offer Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for selleritem in selleritems %}
+                                                    <tr>
+                                                        <td class="product-col">
+                                                            <div class="product">
+                                                                <figure class="product-media">
+                                                                    <a href="#">
+                                                                        <img src="../static/assets/images/products/table/product-1.jpg" alt="Product image">
+                                                                    </a>
+                                                                </figure>
+                        
+                                                                <h3 class="product-title">
+                                                                    <a href="#">{{ selleritem.item_name }}</a>
+                                                                </h3><!-- End .product-title -->
+                                                            </div><!-- End .product -->
+                                                        </td>
+                                                        <td class="price-col">$ {{ selleritem.item_price }}</td>
+                                                        <td class="stock-col"><span class="in-stock">{{ selleritem.item_current_status}}</span></td>
+                                                        <td class="offer-col"><span class="offer-status">{{ selleritem.item_offer_status }}</span></td>
+                                                        <td><a href="#" id="editExistedItem" onclick="displayItemEditFormUser('{{ selleritem.item_id }}')">Edit<i class="icon-edit"></i></a></p></td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
                                         </div>
+                                    </div>
                                     {% endif %}
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                        <label for="itemname">Item Name</label>
-                                        {% if selleritem.item_name is not none %}
-                                            {{ seller_items.item_name(class='form-control', required='required', value=selleritem.item_name) }}
-                                        {% else %}
-                                            {{ seller_items.item_name(class='form-control', required='required') }}
+                                    </div>
+                                    <form id="editItem" style="display: none;" action="/account" method="POST">
+                                        {{ seller_items.csrf_token() }}
+                                        {% if seller_items.errors %}
+                                            <div class="alert alert-danger" role="alert">
+                                                {% for field_errors in seller_items.errors.values() %}
+                                                    {% for error in field_errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </div>
                                         {% endif %}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="itemname">Item Name</label>
+                                            {{ seller_items.item_name(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="itemprice">Item Price</label>
+                                            {{ seller_items.item_price(class='form-control', required='required') }}
+                                            </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                        <label for="itemprice">Item Price</label>
-                                        {{ seller_items.item_price(class='form-control', required='required') }}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="itemcategory">Item Category</label>
+                                            {{ seller_items.item_category(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="itemquantity">Item Quantity</label>
+                                            {{ seller_items.item_quantity(class='form-control', required='required') }}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                        <label for="itemcategory">Item Category</label>
-                                        {{ seller_items.item_category(class='form-control', required='required') }}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="itemdescription">Item Description</label>
+                                            {{ seller_items.item_description(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="itemimage">Item Image</label>
+                                            {{ seller_items.item_image(class='form-control', required='required') }}
+                                            </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                        <label for="itemquantity">Item Quantity</label>
-                                        {{ seller_items.item_quantity(class='form-control', required='required') }}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="item_current_status">Item Current Status</label>
+                                            {{ seller_items.item_current_status(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="item_offer_status">Item Offer Status</label>
+                                            {{ seller_items.item_offer_status(class='form-control')}}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                        <label for="itemdescription">Item Description</label>
-                                        {{ seller_items.item_description(class='form-control', required='required') }}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="item_offer_start_date">Item Offer Start Date</label>
+                                            {{ seller_items.item_offer_start_date(class='form-control')}}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="item_offer_end_date">Item Offer End Date</label>
+                                            {{ seller_items.item_offer_end_date(class='form-control')}}
+                                            </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                        <label for="itemimage">Item Image</label>
-                                        {{ seller_items.item_image(class='form-control', required='required') }}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <label for="item-offer-percentage">Item Offer Percentage</label>
+                                                {{ seller_items.item_offer_percentage(class='form-control')}}
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="item-offer-price">Item Offer Price</label>
+                                                {{ seller_items.item_offer_price(class='form-control')}}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                        <label for="item_current_status">Item Current Status</label>
-                                        {{ seller_items.item_current_status(class='form-control', required='required') }}
+                                        {{ seller_items.submit(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                        {{ seller_items.update(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                        {{ seller_items.delete(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                    </form>
+
+                                    <form id="editExistedItemForm" style="display: none;" action="/account" method="POST">
+                                        {{ seller_items.csrf_token() }}
+                                        {% if seller_items.errors %}
+                                            <div class="alert alert-danger" role="alert">
+                                                {% for field_errors in seller_items.errors.values() %}
+                                                    {% for error in field_errors %}
+                                                        {{ error }}
+                                                    {% endfor %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="itemname">Item Name</label>
+                                            {{ seller_items.item_name(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="itemprice">Item Price</label>
+                                            {{ seller_items.item_price(class='form-control', required='required') }}
+                                            </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                        <label for="item_offer_status">Item Offer Status</label>
-                                        {{ seller_items.item_offer_status(class='form-control')}}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="itemcategory">Item Category</label>
+                                            {{ seller_items.item_category(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="itemquantity">Item Quantity</label>
+                                            {{ seller_items.item_quantity(class='form-control', required='required') }}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                        <label for="item_offer_start_date">Item Offer Start Date</label>
-                                        {{ seller_items.item_offer_start_date(class='form-control')}}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="itemdescription">Item Description</label>
+                                            {{ seller_items.item_description(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="itemimage">Item Image</label>
+                                            {{ seller_items.item_image(class='form-control', required='required') }}
+                                            </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                        <label for="item_offer_end_date">Item Offer End Date</label>
-                                        {{ seller_items.item_offer_end_date(class='form-control')}}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="item_current_status">Item Current Status</label>
+                                            {{ seller_items.item_current_status(class='form-control', required='required') }}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="item_offer_status">Item Offer Status</label>
+                                            {{ seller_items.item_offer_status(class='form-control')}}
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-sm-6">
-                                            <label for="item-offer-percentage">Item Offer Percentage</label>
-                                            {{ seller_items.item_offer_percentage(class='form-control')}}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                            <label for="item_offer_start_date">Item Offer Start Date</label>
+                                            {{ seller_items.item_offer_start_date(class='form-control')}}
+                                            </div>
+                                            <div class="col-sm-6">
+                                            <label for="item_offer_end_date">Item Offer End Date</label>
+                                            {{ seller_items.item_offer_end_date(class='form-control')}}
+                                            </div>
                                         </div>
-                                        <div class="col-sm-6">
-                                            <label for="item-offer-price">Item Offer Price</label>
-                                            {{ seller_items.item_offer_price(class='form-control')}}
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <label for="item-offer-percentage">Item Offer Percentage</label>
+                                                {{ seller_items.item_offer_percentage(class='form-control')}}
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <label for="item-offer-price">Item Offer Price</label>
+                                                {{ seller_items.item_offer_price(class='form-control')}}
+                                            </div>
                                         </div>
-                                    </div>
-                                    {{ seller_items.submit(class='btn btn-outline-primary-2 mt-3 mb-3')}}
-                                    {{ seller_items.update(class='btn btn-outline-primary-2 mt-3 mb-3')}}
-                                    {{ seller_items.delete(class='btn btn-outline-primary-2 mt-3 mb-3')}}
-                                </form>
-                                {% endfor %}
-                            </div>
+                                        {{ seller_items.update(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                        {{ seller_items.delete(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                    </form>
                             </div>
 
                             <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
@@ -176,7 +281,7 @@
                                             <div class="card-body">
                                                 <h3 class="card-title">Billing and Shipping Address</h3>
                                                 
-                                                {% for account in accounts%} 
+                                                
                                                     {% with messages = get_flashed_messages(with_categories=true) %}
                                                         {% if messages %}
                                                             {% for category, message in messages %}
@@ -193,7 +298,8 @@
                                                         {% endif %}
                                                     {% endwith %}
                                                 <div id="editContainer">
-                                                    {% if account.firstname != '' %}
+                                                {% for account in accounts%} 
+                                                    {% if account.firstname is not none %}
                                                         <a href="#" id="editLink" onclick="displayEditForm()">Edit</a>
                                                         <p><label for="name">Full Name: </label> {{ account.firstname }} {{ account.lastname }}</p>
                                                         <div id="userInfo">

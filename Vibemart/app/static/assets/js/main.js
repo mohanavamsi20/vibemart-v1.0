@@ -802,7 +802,24 @@ function displayItemEditForm() {
         editItemLink.textContent = 'Close';
     } else {
         editForm.style.display = 'none'; // Hide the form
-        editItemLink.textContent = 'View';
+        editItemLink.textContent = 'Add';
+        document.getElementById('sellerItemInfo').style.display = 'block';
+    }
+}
+
+function displayItemEditFormUser(item_id) {
+    var editForm = document.getElementById('editExistedItemForm');
+    if (editForm.style.display === 'none') {
+        // Show the form
+        editForm.style.display = 'block';
+        document.getElementById('sellerItemInfo').style.display = 'none';
+        displayItemEditForm();
+        editExistedItem.textContent = 'Close';
+        var itemDetails = retrieveItemDetails(item_id);
+    } else {
+        // Hide the form
+        editForm.style.display = 'none';
+        editExistedItem.textContent = 'Edit';
         document.getElementById('sellerItemInfo').style.display = 'block';
     }
 }

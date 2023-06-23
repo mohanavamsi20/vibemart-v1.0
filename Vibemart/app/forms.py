@@ -61,22 +61,22 @@ class SelleritemsForm(FlaskForm):
     item_description = StringField('item_description', validators=[InputRequired(message='Please enter the item description.')])
     item_image = MultipleFileField('item_image', validators=[InputRequired(message='Please upload the item image.')])
     item_category = SelectField('item_category', validators=[InputRequired(message='Please Select category')], choices=[
-        ('category0', 'SELECT ITEM CATEGORY'),
-        ('category1', 'ACCESSORIES'),
-        ('category2', 'LIGHTING'),
-        ('category3', 'MOSS POLES & PLANT SUPPORTS'),
-        ('category4', 'NUTRIENTS'),
-        ('category5', 'PLANTS'),
-        ('category6', 'PLANT CARE'),
-        ('category7', 'POTS'),
-        ('category8', 'COFFEE & TABLES'),
-        ('category9', 'SUBSTRATES'),
+        ('SELECT ITEM CATEGORY', 'SELECT ITEM CATEGORY'),
+        ('ACCESSORIES', 'ACCESSORIES'),
+        ('LIGHTING', 'LIGHTING'),
+        ('MOSS POLES & PLANT SUPPORTS', 'MOSS POLES & PLANT SUPPORTS'),
+        ('NUTRIENTS', 'NUTRIENTS'),
+        ('PLANTS', 'PLANTS'),
+        ('PLANT CARE', 'PLANT CARE'),
+        ('POTS', 'POTS'),
+        ('COFFEE & TABLES', 'COFFEE & TABLES'),
+        ('SUBSTRATES', 'SUBSTRATES'),
     ])
     item_current_status = SelectField('item_current_status', validators=[InputRequired(message='Please select Current Status')], choices=[
-        ('category0', 'SELECT ITEM STATUS'),
-        ('category1', 'AVAILABLE'),
-        ('category2', 'SOLD'),
-        ('category3', 'OUT OF STOCK'),
+        ('SELECT ITEM STATUS', 'SELECT ITEM STATUS'),
+        ('AVAILABLE', 'AVAILABLE'),
+        ('SOLD', 'SOLD'),
+        ('OUT OF STOCK', 'OUT OF STOCK'),
     ])
     item_quantity = IntegerField('item_quantity', validators=[InputRequired(message='Please enter the item quantity.')])
     item_offer_percentage = IntegerField('item_offer_percentage', validators=[validators.Optional()])
@@ -84,10 +84,10 @@ class SelleritemsForm(FlaskForm):
     item_offer_start_date = DateField('item_offer_start_date', validators=[validators.Optional()])
     item_offer_end_date = DateField('item_offer_end_date', validators=[validators.Optional()])
     item_offer_status = SelectField('item_offer_status', validators=[validators.Optional()], choices=[
-        ('category0', 'SELECT OFFER STATUS'),
-        ('category1', 'ON OFFER'),
-        ('category2', 'NOT ON OFFER'),
-        ('category3', 'OFFER EXPIRED'),
+        ('SELECT OFFER STATUS', 'SELECT OFFER STATUS'),
+        ('ON OFFER', 'ON OFFER'),
+        ('NOT ON OFFER', 'NOT ON OFFER'),
+        ('OFFER EXPIRED', 'OFFER EXPIRED'),
     ])
     submit = SubmitField('SALE THE ITEM', render_kw={'class': 'btn btn-outline-primary-2'})
     update = SubmitField('UPDATE THE ITEM', render_kw={'class': 'btn btn-outline-primary-2'})
