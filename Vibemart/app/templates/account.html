@@ -19,10 +19,13 @@
                                 <a class="nav-link   " id="tab-dashboard-link" data-toggle="tab" href="#tab-dashboard" role="tab" aria-controls="tab-dashboard" aria-selected="true">Dashboard</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
+                                <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">My Orders</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-downloads-link" data-toggle="tab" href="#tab-downloads" role="tab" aria-controls="tab-downloads" aria-selected="false">Downloads</a>
+                                <a class="nav-link" id="tab-saleorders-link" data-toggle="tab" href="#tab-saleorders" role="tab" aria-controls="tab-saleorders" aria-selected="false">Sale Orders</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="tab-items-link" data-toggle="tab" href="#tab-items" role="tab" aria-controls="tab-items" aria-selected="false">My Items</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
@@ -42,17 +45,126 @@
                                 <p>Hello <span class="font-weight-normal text-dark">{{ user_id }}</span> (not <span class="font-weight-normal text-dark">{{ user_id }}</span>? <a href="/logout">Log out</a>) 
                                 <br>
                                 From your account dashboard you can view your <a href="#tab-orders" class="tab-trigger-link link-underline">recent orders</a>, manage your <a href="#tab-address" class="tab-trigger-link">shipping and billing addresses</a>, and <a href="#tab-account" class="tab-trigger-link">edit your password and account details</a>.</p>
-                            </div><!-- .End .tab-pane -->
+                            </div>
 
                             <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
                                 <p>No order has been made yet.</p>
-                                <a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-                            </div><!-- .End .tab-pane -->
+                                <a href="/" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+                            </div>
 
-                            <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
-                                <p>No downloads available yet.</p>
-                                <a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
-                            </div><!-- .End .tab-pane -->
+                            <div class="tab-pane fade" id="tab-saleorders" role="tabpanel" aria-labelledby="tab-saleorders-link">
+                                <p>No order has been made yet.</p>
+                            </div>
+
+                            <div class="tab-pane fade" id="tab-items" role="tabpanel" aria-labelledby="tab-items-link">
+                                {% for selleritem in selleritems %}
+                                    
+                                    {% with messages = get_flashed_messages(with_categories=true) %}
+                                        {% if messages %}
+                                            {% for category, message in messages %}
+                                                {% if category == 'seller_item_success' %}
+                                                    <div class="alert alert-success" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                {% elif category == 'seller_item_danger' %}
+                                                    <div class="alert alert-danger" role="alert">
+                                                        {{ message }}
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endwith %}
+                                <div id="editContainer">
+                                    {% if selleritem.item_name != '' %}
+                                    <a href="#" id="editItemLink" onclick="displayItemEditForm()">View</a>
+                                    <div id="sellerItemInfo">
+                                        <p><label for="email">Item Name: </label> {{ selleritem.item_name}}</p>
+                                    </div>
+                                {% else %}
+                                <p>Add Item for the Shop</p>
+                                {% endif %}
+                                <form id='editItem' style="display: none;" action="/account" method="POST">
+                                    {{ seller_items.csrf_token() }}
+                                    {% if seller_items.errors %}
+                                        <div class="alert alert-danger" role="alert">
+                                            {% for field_errors in seller_items.errors.values() %}
+                                                {% for error in field_errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                        <label for="itemname">Item Name</label>
+                                        {% if selleritem.item_name is not none %}
+                                            {{ seller_items.item_name(class='form-control', required='required', value=selleritem.item_name) }}
+                                        {% else %}
+                                            {{ seller_items.item_name(class='form-control', required='required') }}
+                                        {% endif %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <label for="itemprice">Item Price</label>
+                                        {{ seller_items.item_price(class='form-control', required='required') }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                        <label for="itemcategory">Item Category</label>
+                                        {{ seller_items.item_category(class='form-control', required='required') }}
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <label for="itemquantity">Item Quantity</label>
+                                        {{ seller_items.item_quantity(class='form-control', required='required') }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                        <label for="itemdescription">Item Description</label>
+                                        {{ seller_items.item_description(class='form-control', required='required') }}
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <label for="itemimage">Item Image</label>
+                                        {{ seller_items.item_image(class='form-control', required='required') }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                        <label for="item_current_status">Item Current Status</label>
+                                        {{ seller_items.item_current_status(class='form-control', required='required') }}
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <label for="item_offer_status">Item Offer Status</label>
+                                        {{ seller_items.item_offer_status(class='form-control')}}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                        <label for="item_offer_start_date">Item Offer Start Date</label>
+                                        {{ seller_items.item_offer_start_date(class='form-control')}}
+                                        </div>
+                                        <div class="col-sm-6">
+                                        <label for="item_offer_end_date">Item Offer End Date</label>
+                                        {{ seller_items.item_offer_end_date(class='form-control')}}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <label for="item-offer-percentage">Item Offer Percentage</label>
+                                            {{ seller_items.item_offer_percentage(class='form-control')}}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label for="item-offer-price">Item Offer Price</label>
+                                            {{ seller_items.item_offer_price(class='form-control')}}
+                                        </div>
+                                    </div>
+                                    {{ seller_items.submit(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                    {{ seller_items.update(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                    {{ seller_items.delete(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+                                </form>
+                                {% endfor %}
+                            </div>
+                            </div>
 
                             <div class="tab-pane fade" id="tab-address" role="tabpanel" aria-labelledby="tab-address-link">
                                 <p>The following addresses will be used on the checkout page by default.</p>

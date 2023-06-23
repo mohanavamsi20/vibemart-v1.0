@@ -793,3 +793,16 @@ function displayEditForm() {
         document.getElementById('userInfo').style.display = 'block';
     }
 }
+
+function displayItemEditForm() {
+    var editForm = document.getElementById('editItem');
+    if (editForm.style.display === 'none') {
+        editForm.style.display = 'block'; // Show the form
+        document.getElementById('sellerItemInfo').style.display = 'none';
+        editItemLink.textContent = 'Close';
+    } else {
+        editForm.style.display = 'none'; // Hide the form
+        editItemLink.textContent = 'View';
+        document.getElementById('sellerItemInfo').style.display = 'block';
+    }
+}

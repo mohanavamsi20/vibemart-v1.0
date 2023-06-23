@@ -28,4 +28,24 @@ class Account(db.Model):
     def __repr__(self):
         return f"Account('{self.firstname}','{self.lastname}','{self.displayname}','{self.email}','{self.password}')"
 
+class Seller_items(db.Model):
+    item_id= db.Column(db.Integer, primary_key=True)
+    seller_id=db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+    item_name=db.Column(db.String(120))
+    item_price=db.Column(db.Integer)
+    item_description=db.Column(db.String(120))
+    item_image=db.Column(db.String(120))
+    item_category=db.Column(db.String(120))
+    item_current_status=db.Column(db.String(120))
+    item_quantity=db.Column(db.Integer)
+    item_offer_percentage=db.Column(db.Integer)
+    item_offer_price=db.Column(db.Integer)
+    item_offer_start_date=db.Column(db.Date)
+    item_offer_end_date=db.Column(db.Date)
+    item_offer_status=db.Column(db.String(120))
 
+    def __repr__(self):
+        return f"Seller_items('{self.item_name}','{self.item_price}','{self.item_description}','{self.item_image}','{self.item_category}','{self.item_current_status}','{self.item_quantity}','{self.item_offer_percentage}','{self.item_offer_price}','{self.item_offer_start_date}','{self.item_offer_end_date}','{self.item_offer_status}')"
+
+
+    

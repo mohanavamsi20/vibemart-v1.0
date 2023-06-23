@@ -1,8 +1,10 @@
 from flask import render_template,request, redirect, url_for, flash, session
 from app import app
-from app.models import User, Account
-from app.forms import LoginForm, RegisterForm, AccountForm, AddressForm
+from app.models import *
+from app.forms import LoginForm, RegisterForm, AccountForm, AddressForm, SelleritemsForm
 from app import db
+import os
+
 
 @app.route('/')
 def home():
@@ -39,8 +41,10 @@ def account():
         return redirect(url_for('login'))
     account_form = AccountForm()
     address_form = AddressForm()
+    seller_items = SelleritemsForm()
     user_id = session['user_id']
     accounts = Account.query.filter_by(email=user_id).all()
+    selleritems = Seller_items.query.filter_by(seller_id=accounts[0].id).all()
     if address_form.validate_on_submit():
         address_details(user_id, address_form)
         flash('Address details updated successfully!', 'address_success')
@@ -48,7 +52,10 @@ def account():
     if account_form.validate_on_submit():
         update_account(user_id, account_form)
         return redirect(url_for('account'))
-    return render_template('account.html',forms = account_form ,session=session, user_id=user_id, accounts=accounts, address_form=address_form)
+    if seller_items.validate_on_submit():
+        seller_items_funtion(user_id, seller_items)
+        return redirect(url_for('account'))
+    return render_template('account.html',forms = account_form ,session=session, user_id=user_id, accounts=accounts, address_form=address_form, seller_items = seller_items, selleritems = selleritems)
 
 
 def update_account(user_id,account_form):
@@ -101,6 +108,83 @@ def address_details(user_id,address_form):
     account.phone = address_form.phone.data
     db.session.commit()
 
+
+def seller_items_funtion(user_id,seller_items):
+    account = Account.query.filter_by(email=user_id).first()
+    if request.form['submit'] == 'SALE THE ITEM':
+        if seller_items.item_offer_percentage.data == '' and seller_items.item_offer_price.data == '' and seller_items.item_offer_start_date.data == '' and seller_items.item_offer_end_date.data == '':
+            item = Seller_items(
+                seller_id=account.id,
+                item_name=seller_items.item_name.data,
+                item_description=seller_items.item_description.data,
+                item_price=seller_items.item_price.data,
+                item_quantity=seller_items.item_quantity.data,
+                item_category=seller_items.item_category.data,
+                item_image=seller_items.item_image.data,
+                item_current_status=seller_items.item_current_status.data,
+                item_offer_status = seller_items.item_offer_status.data,
+                item_offer_percentage = 0,
+                item_offer_price = 0,
+                item_offer_start_date = datetime.datetime.now(),
+                item_offer_end_date = datetime.datetime.now()
+            )
+        else:
+            item = Seller_items(
+            seller_id=account.id,
+            item_name=seller_items.item_name.data,
+            item_description=seller_items.item_description.data,
+            item_price=seller_items.item_price.data,
+            item_quantity=seller_items.item_quantity.data,
+            item_category=seller_items.item_category.data,
+            item_image=seller_items.item_image.data,
+            item_current_status=seller_items.item_current_status.data,
+            item_offer_percentage=seller_items.item_offer_percentage.data,
+            item_offer_price=seller_items.item_offer_price.data,
+            item_offer_start_date=seller_items.item_offer_start_date.data,
+            item_offer_end_date=seller_items.item_offer_end_date.data,
+            item_offer_status=seller_items.item_offer_status.data
+            )
+        db.session.add(item)
+        db.session.commit()
+        flash('Item added successfully!', 'seller_item_success')
+        return redirect(url_for('account'))
+    elif request.form['submit'] == 'UPDATE THE ITEM':
+        if seller_items.item_offer_percentage.data == '' and seller_items.item_offer_price.data == '' and seller_items.item_offer_start_date.data == '' and seller_items.item_offer_end_date.data == '':
+            item = Seller_items.query.get(item_id)
+            item.item_name = seller_items.item_name.data
+            item.item_description = seller_items.item_description.data
+            item.item_price = seller_items.item_price.data
+            item.item_quantity = seller_items.item_quantity.data
+            item.item_category = seller_items.item_category.data
+            item.item_image = seller_items.item_image.data
+            item.item_current_status = seller_items.item_current_status.data
+            item.item_offer_percentage = 0
+            item.item_offer_price = 0
+            item.item_offer_start_date = datetime.datetime.now()
+            item.item_offer_end_date = datetime.datetime.now()
+        else:
+            item = Seller_items.query.get(item_id)
+            item.item_name = seller_items.item_name.data
+            item.item_description = seller_items.item_description.data
+            item.item_price = seller_items.item_price.data
+            item.item_quantity = seller_items.item_quantity.data
+            item.item_category = seller_items.item_category.data
+            item.item_image = seller_items.item_image.data
+            item.item_current_status = seller_items.item_current_status.data
+            item.item_offer_percentage = seller_items.item_offer_percentage.data
+            item.item_offer_price = seller_items.item_offer_price.data
+            item.item_offer_start_date = seller_items.item_offer_start_date.data
+            item.item_offer_end_date = seller_items.item_offer_end_date.data
+            item.item_offer_status = seller_items.item_offer_status.data
+        db.session.commit()
+        flash('Item updated successfully!', 'seller_item_success')
+        return redirect(url_for('account'))
+    elif request.form['submit'] == 'DELETE THE ITEM':
+        item = Seller_items.query.get(item_id)
+        db.session.delete(item)
+        db.session.commit()
+        flash('Item deleted successfully!', 'seller_item_success')
+        return redirect(url_for('account'))
 
 @app.route('/logout')
 def logout():
