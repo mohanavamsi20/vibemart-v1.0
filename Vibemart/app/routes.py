@@ -8,7 +8,8 @@ import os
 
 @app.route('/')
 def home():
-    return render_template('home.html',session=session)
+    selleritems = Seller_items.query.all()
+    return render_template('home.html',session=session, selleritems=selleritems)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -44,7 +45,6 @@ def account():
     seller_items = SelleritemsForm()
     user_id = session['user_id']
     accounts = Account.query.filter_by(email=user_id).all()
-    print(accounts)
     selleritems = Seller_items.query.filter_by(seller_id=accounts[0].id).all()
     if address_form.validate_on_submit():
         address_details(user_id, address_form)
@@ -187,6 +187,11 @@ def seller_items_funtion(user_id,seller_items):
         flash('Item deleted successfully!', 'seller_item_success')
         return redirect(url_for('account'))
 
+
+@app.route('/shop', methods=['GET', 'POST'])
+def shop():
+    selleritems = Seller_items.query.all()
+    return render_template('shop.html', title='Shop', selleritems=selleritems)
 @app.route('/logout')
 def logout():
     session.clear()

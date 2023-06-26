@@ -22,13 +22,10 @@
                                 <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">My Orders</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-saleorders-link" data-toggle="tab" href="#tab-saleorders" role="tab" aria-controls="tab-saleorders" aria-selected="false">Sale Orders</a>
-                            </li>
-                            <li class="nav-item">
                                 <a class="nav-link" id="tab-items-link" data-toggle="tab" href="#tab-items" role="tab" aria-controls="tab-items" aria-selected="false">My Items</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
+                                <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Addresses</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-account-link" data-toggle="tab" href="#tab-account" role="tab" aria-controls="tab-account" aria-selected="false">Account Details</a>
@@ -52,13 +49,7 @@
                                 <a href="/" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
                             </div>
 
-                            <div class="tab-pane fade" id="tab-saleorders" role="tabpanel" aria-labelledby="tab-saleorders-link">
-                                <p>No order has been made yet.</p>
-                            </div>
-
                             <div class="tab-pane fade" id="tab-items" role="tabpanel" aria-labelledby="tab-items-link">
-                                
-                                    
                                     {% with messages = get_flashed_messages(with_categories=true) %}
                                         {% if messages %}
                                             {% for category, message in messages %}
@@ -75,7 +66,8 @@
                                         {% endif %}
                                     {% endwith %}
 
-                                    <a href="#" id="editItemLink" onclick="displayItemEditForm()">Add</a>
+                                    <a href="#" id="editItemLink" style="display: block;" onclick="displayItemEditForm()">Add</a>
+                                    <a href="#" id="cancelItemLink" style="display: none;" onclick="hideItemEditForm()">Cancel</a>
                                     <div id="sellerItemInfo">
                                     {% if selleritems|length == 0 %}
                                         <p> No item has been added yet. </p>
@@ -110,7 +102,7 @@
                                                         <td class="price-col">$ {{ selleritem.item_price }}</td>
                                                         <td class="stock-col"><span class="in-stock">{{ selleritem.item_current_status}}</span></td>
                                                         <td class="offer-col"><span class="offer-status">{{ selleritem.item_offer_status }}</span></td>
-                                                        <td><a href="#" id="editExistedItem" onclick="displayItemEditFormUser('{{ selleritem.item_id }}')">Edit<i class="icon-edit"></i></a></p></td>
+                                                        <td> <a href="#" onclick="displayItemEditFormUser('{{selleritem.item_id}}')">Edit <i class="icon-edit"></i></a></p></td>
                                                     </tr>
                                                     {% endfor %}
                                                 </tbody>
@@ -132,37 +124,37 @@
                                         {% endif %}
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="itemname">Item Name</label>
+                                            <label for="itemname">Item Name *</label>
                                             {{ seller_items.item_name(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
-                                            <label for="itemprice">Item Price</label>
+                                            <label for="itemprice">Item Price *</label>
                                             {{ seller_items.item_price(class='form-control', required='required') }}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="itemcategory">Item Category</label>
+                                            <label for="itemcategory">Item Category *</label>
                                             {{ seller_items.item_category(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
-                                            <label for="itemquantity">Item Quantity</label>
+                                            <label for="itemquantity">Item Quantity *</label>
                                             {{ seller_items.item_quantity(class='form-control', required='required') }}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="itemdescription">Item Description</label>
+                                            <label for="itemdescription">Item Description *</label>
                                             {{ seller_items.item_description(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
-                                            <label for="itemimage">Item Image</label>
+                                            <label for="itemimage">Item Image *</label>
                                             {{ seller_items.item_image(class='form-control', required='required') }}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="item_current_status">Item Current Status</label>
+                                            <label for="item_current_status">Item Current Status *</label>
                                             {{ seller_items.item_current_status(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
@@ -208,37 +200,38 @@
                                         {% endif %}
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="itemname">Item Name</label>
+                                            <label for="itemname">Item Name *</label>
+                                            
                                             {{ seller_items.item_name(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
-                                            <label for="itemprice">Item Price</label>
+                                            <label for="itemprice">Item Price *</label>
                                             {{ seller_items.item_price(class='form-control', required='required') }}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="itemcategory">Item Category</label>
+                                            <label for="itemcategory">Item Category *</label>
                                             {{ seller_items.item_category(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
-                                            <label for="itemquantity">Item Quantity</label>
+                                            <label for="itemquantity">Item Quantity *</label>
                                             {{ seller_items.item_quantity(class='form-control', required='required') }}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="itemdescription">Item Description</label>
+                                            <label for="itemdescription">Item Description *</label>
                                             {{ seller_items.item_description(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">
-                                            <label for="itemimage">Item Image</label>
+                                            <label for="itemimage">Item Image *</label>
                                             {{ seller_items.item_image(class='form-control', required='required') }}
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-sm-6">
-                                            <label for="item_current_status">Item Current Status</label>
+                                            <label for="item_current_status">Item Current Status *</label>
                                             {{ seller_items.item_current_status(class='form-control', required='required') }}
                                             </div>
                                             <div class="col-sm-6">

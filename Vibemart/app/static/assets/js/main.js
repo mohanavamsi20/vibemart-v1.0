@@ -810,16 +810,23 @@ function displayItemEditForm() {
 function displayItemEditFormUser(item_id) {
     var editForm = document.getElementById('editExistedItemForm');
     if (editForm.style.display === 'none') {
-        // Show the form
         editForm.style.display = 'block';
+        editItemLink.style.display = 'none';
+        cancelItemLink.style.display = 'block';
+        // var itemInfo = document.getElementById('sellerItemInfo');
         document.getElementById('sellerItemInfo').style.display = 'none';
-        displayItemEditForm();
-        editExistedItem.textContent = 'Close';
-        var itemDetails = retrieveItemDetails(item_id);
     } else {
-        // Hide the form
         editForm.style.display = 'none';
-        editExistedItem.textContent = 'Edit';
+        editItemLink.style.display = 'block';
+        cancelItemLink.style.display = 'none';
         document.getElementById('sellerItemInfo').style.display = 'block';
     }
+}
+
+function hideItemEditForm(){
+    var editForm = document.getElementById('editExistedItemForm');
+    editForm.style.display = 'none';
+    editItemLink.style.display = 'block';
+    cancelItemLink.style.display = 'none';
+    document.getElementById('sellerItemInfo').style.display = 'block';
 }

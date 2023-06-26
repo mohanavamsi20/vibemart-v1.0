@@ -14,8 +14,8 @@ from app.models import User
 with app.app_context():
     db.create_all()
 
-# log = logging.getLogger('werkzeug')
-# log.setLevel(logging.ERROR)
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 csrf = CSRFProtect(app)
 
