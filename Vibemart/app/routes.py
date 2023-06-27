@@ -3,6 +3,13 @@ from app import app
 from app.models import *
 from app.forms import LoginForm, RegisterForm, AccountForm, AddressForm, SelleritemsForm
 from app import db
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
+from xhtml2pdf import pisa
+from io import BytesIO
 import os
 
 
@@ -11,7 +18,6 @@ def home():
     selleritems = Seller_items.query.all()
     return render_template('home.html',session=session, selleritems=selleritems)
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'user_id' in session:
@@ -19,6 +25,8 @@ def login():
     login_form = LoginForm()
     if login_form.validate_on_submit():
         session['user_id'] = login_form.email.data
+        account = Account.query.filter_by(email=session['user_id']).first()
+        session['cart'] = Cart.query.filter_by(buyyer_id=account.id).count()
         return redirect(url_for('home'))
     return render_template('login.html', forms=login_form, session=session)
 
@@ -46,6 +54,7 @@ def account():
     user_id = session['user_id']
     accounts = Account.query.filter_by(email=user_id).all()
     selleritems = Seller_items.query.filter_by(seller_id=accounts[0].id).all()
+    cart_orders = Cart.query.filter_by(buyyer_id=accounts[0].id).filter(Cart.item_status=='Ordered').all()
     if address_form.validate_on_submit():
         address_details(user_id, address_form)
         flash('Address details updated successfully!', 'address_success')
@@ -56,7 +65,7 @@ def account():
     if seller_items.validate_on_submit():
         seller_items_funtion(user_id, seller_items)
         return redirect(url_for('account'))
-    return render_template('account.html',forms = account_form ,session=session, user_id=user_id, accounts=accounts, address_form=address_form, seller_items = seller_items, selleritems = selleritems)
+    return render_template('account.html',forms = account_form ,session=session, user_id=user_id, accounts=accounts, address_form=address_form, seller_items = seller_items, selleritems = selleritems, cart_orders=cart_orders)
 
 
 def update_account(user_id,account_form):
@@ -191,7 +200,124 @@ def seller_items_funtion(user_id,seller_items):
 @app.route('/shop', methods=['GET', 'POST'])
 def shop():
     selleritems = Seller_items.query.all()
-    return render_template('shop.html', title='Shop', selleritems=selleritems)
+    return render_template('shop.html', title='Shop', selleritems=selleritems, session=session)
+
+@app.route('/shop/<int:item_id>/add-to-cart', methods=['GET', 'POST'])
+def add_to_cart(item_id):
+    selleritems = Seller_items.query.get(item_id)
+    user_id = session['user_id']
+    account = Account.query.filter_by(email=user_id).first()
+    cart_item = Cart(item_id=selleritems.item_id, item_name= selleritems.item_name,item_price=selleritems.item_price, item_quantity=1, item_status='Pending', buyyer_id=account.id, seller_id=selleritems.seller_id)
+    if cart_item.seller_id == account.id:
+        flash('You cannot add your own item to cart!', 'cart_error')
+        return redirect(url_for('cart'))
+    db.session.add(cart_item)
+    db.session.commit()
+    session['cart'] = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').count()
+    return redirect(url_for('shop'))
+
+@app.route('/shop/<int:item_id>/remove-from-cart', methods=['GET', 'POST'])
+def remove_from_cart(item_id):
+    selleritems = Seller_items.query.get(item_id)
+    user_id = session['user_id']
+    account = Account.query.filter_by(email=user_id).first()
+    cart_item = Cart.query.filter_by(item_id=selleritems.item_id, buyyer_id=account.id).filter(Cart.item_status=='Pending').first()
+    db.session.delete(cart_item)
+    db.session.commit()
+    session['cart'] = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').count()
+    return redirect(url_for('cart'))
+
+@app.route('/cart')
+def cart():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user_id = session['user_id']
+    account = Account.query.filter_by(email=user_id).first()
+    cart_items = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').all()
+    total = 0
+    for cart_item in cart_items:
+        total += cart_item.item_price
+    return render_template('cart.html', cart_items=cart_items,session=session, total=total)
+
+
+@app.route('/checkout', methods=['GET', 'POST'])
+def checkout():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    user_id = session['user_id']
+    account = Account.query.filter_by(email=user_id).first()
+    cart_items = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').all()
+    total = 0
+    for cart_item in cart_items:
+            total += cart_item.item_price
+    if cart_items == []:
+        flash('Your cart is empty!', 'cart_error')
+        return redirect(url_for('cart'))
+    return render_template('checkout.html', cart_items=cart_items, total=total, session=session, account=account)
+
+@app.route('/product/<int:item_id>')
+def product(item_id):
+    selleritems = Seller_items.query.get(item_id)
+    return render_template('product.html', title='Product', selleritems=selleritems, session=session)
+
+@app.route('/place_order')
+def place_order():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    account = Account.query.filter_by(email=user_id).first()
+    cart_items = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').all()
+    name = account.displayname
+    email = account.email
+    total = 0
+    for cart_item in cart_items:
+        total += cart_item.item_price
+    rendered_html = render_template('placeorder.html', name=name, email = email, cart_items=cart_items, account=account, session=session, total=total)
+
+    pdf = generate_pdf(rendered_html)
+    send_email(email, rendered_html, pdf)
+
+    for cart_item in cart_items:
+        cart_item.item_status = 'Ordered'
+    db.session.commit()
+    session.pop('cart', None)
+    flash('Your order has been placed successfully!', 'order_success')
+    return redirect(url_for('home'))
+
+def generate_pdf(html):
+    pdf = BytesIO()
+    pisa.CreatePDF(BytesIO(html.encode('utf-8')),  dest=pdf)
+    return pdf.getvalue()
+
+def send_email(to_email, html, pdf):
+    # Email configuration
+    sender_email = 'abc@gmail.com'
+    sender_password = 'password'
+    smtp_server = 'smtp.gmail.com'
+    smtp_port = 587
+
+    msg = MIMEMultipart()
+    msg['From'] = sender_email
+    msg['To'] = to_email
+    msg['Subject'] = 'Checkout PDF'
+
+    # Attach HTML as text
+    msg.attach(MIMEText(html, 'html'))
+
+    # Attach PDF as attachment
+    attachment = MIMEBase('application', 'pdf')
+    attachment.set_payload(pdf)
+    encoders.encode_base64(attachment)
+    attachment.add_header('Content-Disposition', 'attachment', filename='receipt.pdf')
+    msg.attach(attachment)
+
+    # Connect to SMTP server and send email
+    with smtplib.SMTP(smtp_server, smtp_port) as server:
+        server.starttls()
+        server.login(sender_email, sender_password)
+        server.send_message(msg)
+
 @app.route('/logout')
 def logout():
     session.clear()

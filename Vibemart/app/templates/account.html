@@ -45,7 +45,48 @@
                             </div>
 
                             <div class="tab-pane fade" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
+                                {% if cart_orders|length > 0 %}
+                                <div class="order-track order-track--pending">
+                                    <div class="page-content">
+                                        <div class="col-sm-60">
+                                            <table class="table table-wishlist table-mobile">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product</th>
+                                                        <th>Price</th>
+                                                        <th>Order Status</th>
+                                                        <th>Quantity Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for cart_order in cart_orders %}
+                                                    <tr>
+                                                        <td class="product-col">
+                                                            <div class="product">
+                                                                <figure class="product-media">
+                                                                    <a href="#">
+                                                                        <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image">
+                                                                    </a>
+                                                                </figure>
+                        
+                                                                <h3 class="product-title">
+                                                                    <a href="#">{{ cart_order.item_name }}</a>
+                                                                </h3><!-- End .product-title -->
+                                                            </div><!-- End .product -->
+                                                        </td>
+                                                        <td class="price-col">$ {{ cart_order.item_price }}</td>
+                                                        <td class="stock-col"><span class="in-stock">{{ cart_order.item_status}}</span></td>
+                                                        <td class="offer-col"><span class="offer-status">{{ cart_order.item_quantity }}</span></td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% else %}
                                 <p>No order has been made yet.</p>
+                                {% endif %}
                                 <a href="/" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
                             </div>
 
@@ -90,7 +131,7 @@
                                                             <div class="product">
                                                                 <figure class="product-media">
                                                                     <a href="#">
-                                                                        <img src="../static/assets/images/products/table/product-1.jpg" alt="Product image">
+                                                                        <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image">
                                                                     </a>
                                                                 </figure>
                         

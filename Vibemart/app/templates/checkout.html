@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}
+<title> Checkout </title>
+{% endblock title%}
+{% block content %}
+<div class="page-content">
+    <div class="checkout">
+        <div class="container">
+            <form action="#">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <h2 class="checkout-title">Billing Details</h2><!-- End .checkout-title -->
+                        {% if account.firstname is not none %}
+                        <p><label for="name">Full Name: </label> {{ account.firstname }} {{ account.lastname }}</p>
+                        <div id="userInfo">
+                            <p><label for="email">Email: </label> {{ account.email }}</p>
+                            <p><label for="phone">Phone: </label> {% if account.phone is none%} {% else %}{{ account.phone }} {% endif %}</p>
+                            <p><label for="address_line1">Address Line 1: </label> {% if account.address_line1 is none%} {% else %}{{ account.address_line1 }} {% endif %}</p>
+                            <p><label for="address_line2">Address Line 2: </label> {% if account.address_line2 is none%} {% else %}{{ account.address_line2 }} {% endif %}</p>
+                            <p><label for="country">Country: </label> {% if account.country is none%} {% else %}{{ account.country }} {% endif %}</p>
+                            <p><label for="state">State: </label> {% if account.state is none%} {% else %}{{ account.state }} {% endif %}</p>
+                            <p><label for="city">City: </label> {% if account.city is none%} {% else %}{{ account.city }} {% endif %}</p>
+                            <p><label for="zip">Zip: </label> {% if account.zipcode is none%} {% else %}{{ account.zipcode }} {% endif %}</p>
+                        </div>
+                        {% else %}
+                        <p>Please Update account before entering shipping address</p>
+                        {% endif %}
+                        <label>Note* : If you want to edit address go to My Account Addresses</label>
+                    </div><!-- End .col-lg-9 -->
+                    <aside class="col-lg-3">
+                        <div class="summary">
+                            <h3 class="summary-title">Your Order</h3><!-- End .summary-title -->
+
+                            <table class="table table-summary">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    {% for item in cart_items %}
+                                    {% if item.item_status == 'pending' %}
+                                    <tr>
+                                        <td><a href="#">{{ item.item_name}}</a></td>
+                                        <td>$ {{ item.item_price }}</td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    <tr class="summary-subtotal">
+                                        <td>Subtotal:</td>
+                                        <td>$ {{ total }}</td>
+                                    </tr><!-- End .summary-subtotal -->
+                                    <tr>
+                                        <td>Shipping:</td>
+                                        <td>Free shipping</td>
+                                    </tr>
+                                    <tr class="summary-total">
+                                        <td>Total:</td>
+                                        <td>$ {{total}}</td>
+                                    </tr><!-- End .summary-total -->
+                                </tbody>
+                            </table><!-- End .table table-summary -->
+
+                            <div class="accordion-summary" id="accordion-payment">
+                                <!-- <div class="card">
+                                    <div class="card-header" id="heading-1">
+                                        <h2 class="card-title">
+                                            <a role="button" data-toggle="collapse" href="#collapse-1" aria-expanded="true" aria-controls="collapse-1">
+                                                Direct bank transfer
+                                            </a>
+                                        </h2>
+                                    </div>
+                                    <div id="collapse-1" class="collapse show" aria-labelledby="heading-1" data-parent="#accordion-payment">
+                                        <div class="card-body">
+                                            Make your payment directly into our bank account. Please use your Order ID as the payment reference. Your order will not be shipped until the funds have cleared in our account.
+                                        </div>
+                                    </div>
+                                </div> -->
+
+                                <!-- <div class="card">
+                                    <div class="card-header" id="heading-2">
+                                        <h2 class="card-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-2" aria-expanded="false" aria-controls="collapse-2">
+                                                Check payments
+                                            </a>
+                                        </h2>
+                                    </div>
+                                    <div id="collapse-2" class="collapse" aria-labelledby="heading-2" data-parent="#accordion-payment">
+                                        <div class="card-body">
+                                            Ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Nullam malesuada erat ut turpis. 
+                                        </div>
+                                    </div>
+                                </div> -->
+
+                                <div class="card">
+                                    <div class="card-header" id="heading-3">
+                                        <h2 class="card-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-3" aria-expanded="false" aria-controls="collapse-3">
+                                                Cash on delivery
+                                            </a>
+                                        </h2>
+                                    </div>
+                                    <div id="collapse-3" class="collapse" aria-labelledby="heading-3" data-parent="#accordion-payment">
+                                        <div class="card-body">On Cash on delivery, delivery is $2 </div>
+                                    </div>
+                                </div>
+
+                                <!-- <div class="card">
+                                    <div class="card-header" id="heading-4">
+                                        <h2 class="card-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-4" aria-expanded="false" aria-controls="collapse-4">
+                                                PayPal <small class="float-right paypal-link">What is PayPal?</small>
+                                            </a>
+                                        </h2>
+                                    </div>
+                                    <div id="collapse-4" class="collapse" aria-labelledby="heading-4" data-parent="#accordion-payment">
+                                        <div class="card-body">
+                                            Nullam malesuada erat ut turpis. Suspendisse urna nibh, viverra non, semper suscipit, posuere a, pede. Donec nec justo eget felis facilisis fermentum.
+                                        </div>
+                                    </div>
+                                </div> -->
+
+                                <!-- <div class="card">
+                                    <div class="card-header" id="heading-5">
+                                        <h2 class="card-title">
+                                            <a class="collapsed" role="button" data-toggle="collapse" href="#collapse-5" aria-expanded="false" aria-controls="collapse-5">
+                                                Credit Card (Stripe)
+                                                <img src="../static/assets/images/payments-summary.png" alt="payments cards">
+                                            </a>
+                                        </h2>
+                                    </div>
+                                    <div id="collapse-5" class="collapse" aria-labelledby="heading-5" data-parent="#accordion-payment">
+                                        <div class="card-body"> Donec nec justo eget felis facilisis fermentum.Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec odio. Quisque volutpat mattis eros. Lorem ipsum dolor sit ame.
+                                        </div>
+                                    </div>
+                                </div> -->
+                            </div>
+                            <a href="/place_order" class="btn btn-outline-primary-2 btn-order btn-block">
+                                <span class="btn-text">Place Order</span>
+                                <span class="btn-hover-text">Proceed to Checkout</span>
+                            </a>                 
+                        </div>
+                    </aside>
+                </div><!-- End .row -->
+            </form>
+        </div><!-- End .container -->
+    </div><!-- End .checkout -->
+</div><!-- End .page-content -->
+{% endblock content %}

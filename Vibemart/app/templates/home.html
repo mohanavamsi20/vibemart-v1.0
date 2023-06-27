@@ -5,7 +5,17 @@
 {% endblock title %}
 
 {%block content%}
-
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            {% if category == 'order_success' %}
+                <div class="alert alert-success" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+{% endwith %}
     <div class="page-wrapper">
         <main class="main">
             <div class="intro-slider-container">
@@ -84,7 +94,7 @@
                                     </div>
                                 </div>
                                 <div class="product-action">
-                                    <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                    <a href="/shop/{{ selleritem.item_id }}/add-to-cart" class="btn-product btn-cart"><span>add to cart</span></a>
                                 </div>
                             </div>
                             {% else %}

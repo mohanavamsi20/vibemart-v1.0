@@ -48,4 +48,17 @@ class Seller_items(db.Model):
         return f"Seller_items('{self.item_name}','{self.item_price}','{self.item_description}','{self.item_image}','{self.item_category}','{self.item_current_status}','{self.item_quantity}','{self.item_offer_percentage}','{self.item_offer_price}','{self.item_offer_start_date}','{self.item_offer_end_date}','{self.item_offer_status}')"
 
 
-    
+class Cart(db.Model):
+    id=db.Column(db.Integer, primary_key=True)
+    buyyer_id=db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+    seller_id=db.Column(db.Integer, db.ForeignKey('seller_items.seller_id'), nullable=False)
+    item_id=db.Column(db.Integer, db.ForeignKey('seller_items.item_id'), nullable=False)
+    item_name=db.Column(db.String(120))
+    item_quantity=db.Column(db.Integer)
+    item_category=db.Column(db.String(120))
+    item_price=db.Column(db.Integer)
+    item_total_price=db.Column(db.Integer)
+    item_status=db.Column(db.String(120))
+
+    def __repr__(self):
+        return f"Cart('{self.user_id}','{self.item_id}','{self.item_quantity}','{self.item_price}','{self.item_total_price}','{self.item_status}')"

@@ -39,19 +39,24 @@
                                     {% if selleritem.item_current_status == 'AVAILABLE' %}
                                     <figure class="product-media">
                                         <span class="product-label label-new">New</span>
-                                        <a href="#">
+                                        <a href="/product/{{selleritem.item_id}}">
                                             <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image" class="product-image">
                                         </a>
                                         <div class="product-action">
-                                            <a href="#" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            {% if 'user_id' in session %}
+                                            <a href="/shop/{{ selleritem.item_id }}/add-to-cart" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            {% else %}
+                                            <a href="/login" class="btn-product btn-cart"><span>add to cart</span></a>
+                                            {% endif %}
+                                            
                                         </div>
                                     </figure>
 
                                     <div class="product-body">
                                         <div class="product-cat">
-                                            <a href="#">{{selleritem.item_category}}</a>
+                                            <a href="/product/{{selleritem.item_id}}">{{selleritem.item_category}}</a>
                                         </div>
-                                        <h3 class="product-title"><a href="#">{{selleritem.item_name}}</a></h3><!-- End .product-title -->
+                                        <h3 class="product-title"><a href="/product/{{selleritem.item_id}}">{{selleritem.item_name}}</a></h3><!-- End .product-title -->
                                         <div class="product-price">
                                             $ {{selleritem.item_price}}
                                         </div>

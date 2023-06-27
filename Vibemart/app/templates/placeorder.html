@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Order Receipt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .receipt {
+            border: 1px solid #ccc;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .receipt-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .receipt-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .receipt-details {
+            margin-bottom: 20px;
+        }
+
+        .receipt-details span {
+            font-weight: bold;
+        }
+
+        .receipt-items {
+            margin-bottom: 20px;
+        }
+
+        .receipt-items table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .receipt-items th, .receipt-items td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .receipt-total {
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="receipt-header">
+            <h2 class="receipt-title">Order Receipt</h2>
+        </div>
+        <div class="receipt-details">
+            <p><span>Name:</span> {{ name }}</p>
+            <p><span>Email:</span> {{ email }}</p>
+        </div>
+        <div class="receipt-items">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.item_name }}</td>
+                            <td>{{ item.item_quantity }}</td>
+                            <td>{{ item.item_price }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="receipt-total">
+            <p><span>Total:</span> {{ total }}</p>
+        </div>
+    </div>
+</body>
+</html>
