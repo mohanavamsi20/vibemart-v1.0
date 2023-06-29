@@ -1,4 +1,4 @@
-from flask import render_template,request, redirect, url_for, flash, session
+from flask import render_template,request, redirect, url_for, flash, session, send_from_directory
 from app import app
 from app.models import *
 from app.forms import LoginForm, RegisterForm, AccountForm, AddressForm, SelleritemsForm
@@ -11,6 +11,10 @@ from email import encoders
 from xhtml2pdf import pisa
 from io import BytesIO
 import os
+from werkzeug.utils import secure_filename
+import uuid
+UPLOAD_FOLDER = 'D:\\Devthon\\vibemart-v1.0\\Vibemart\\app\\static\\assets\\images\\vibemart'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 @app.route('/')
@@ -121,6 +125,21 @@ def address_details(user_id,address_form):
 
 def seller_items_funtion(user_id,seller_items):
     account = Account.query.filter_by(email=user_id).first()
+    if 'item_image' in request.files:
+        item_picture = request.files['item_image']
+        print(item_picture)
+        if item_picture.filename != '':
+            image_id = str(uuid.uuid4())
+            image_folder = os.path.join(UPLOAD_FOLDER, image_id)
+            os.makedirs(image_folder, exist_ok=True)
+            filename = secure_filename(item_picture.filename)
+            file_path = os.path.join(image_folder, filename)
+            item_picture.save(file_path)
+            print(file_path)
+        else:
+            item_image_path = ''
+    else:
+        item_image_path = ''
     if request.form['submit'] == 'SALE THE ITEM':
         if seller_items.item_offer_percentage.data == '' and seller_items.item_offer_price.data == '' and seller_items.item_offer_start_date.data == '' and seller_items.item_offer_end_date.data == '':
             item = Seller_items(
@@ -130,7 +149,7 @@ def seller_items_funtion(user_id,seller_items):
                 item_price=seller_items.item_price.data,
                 item_quantity=seller_items.item_quantity.data,
                 item_category=seller_items.item_category.data,
-                item_image=seller_items.item_image.data,
+                item_image=file_path,
                 item_current_status=seller_items.item_current_status.data,
                 item_offer_status = seller_items.item_offer_status.data,
                 item_offer_percentage = 0,
@@ -196,6 +215,17 @@ def seller_items_funtion(user_id,seller_items):
         flash('Item deleted successfully!', 'seller_item_success')
         return redirect(url_for('account'))
 
+# @app.route('/display/<path:filename>')
+# def display_image(filename):
+#     directory = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+#     print(directory)
+#     return send_from_directory(directory, filename)
+
+@app.route('/display/<path:image_path>')
+def display_image(image_path):
+    directory = os.path.join(app.config['UPLOAD_FOLDER'], image_path)
+    print(directory)
+    return send_from_directory(directory, os.path.basename(image_path))
 
 @app.route('/shop', methods=['GET', 'POST'])
 def shop():

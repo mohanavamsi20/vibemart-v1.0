@@ -49,6 +49,8 @@
                                     <label for="register-password-2">Enter password *</label>
                                     {{ forms.password(class="form-control", id="register-password-2",required=True) }}
                                 </div>
+                                <label for="role">Role:</label>
+                                {{ forms.role(class="form-control",required=True) }}
 
                                 <div class="form-footer">
                                     {{ forms.submit(class="btn btn-outline-primary-2",type="submit") }}

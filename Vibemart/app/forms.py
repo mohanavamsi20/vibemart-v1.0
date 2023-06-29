@@ -22,6 +22,7 @@ class LoginForm(FlaskForm):
 class RegisterForm(FlaskForm):
     email = StringField('register-email-2', validators=[InputRequired(), Length(min=4, max=120)])
     password = PasswordField('register-password-2', validators=[InputRequired(), Length(min=4, max=60)])
+    role = SelectField('Role', choices=[('buyer', 'Buyer'), ('seller', 'Seller')])
     submit = SubmitField('REGISTER')
 
     def validate_email(self, email):
@@ -29,7 +30,7 @@ class RegisterForm(FlaskForm):
         if user:
             raise ValidationError('Email already exists')
         new_user = User(email=email.data, password=self.password.data)
-        new_account = Account(email=email.data, password=self.password.data)
+        new_account = Account(email=email.data, password=self.password.data, role=self.role.data)
         db.session.add(new_user)
         db.session.add(new_account)
         db.session.commit()
@@ -59,7 +60,7 @@ class SelleritemsForm(FlaskForm):
     item_name = StringField('item_name', validators=[InputRequired(message='Please enter the item name.')])
     item_price = StringField('item_price', validators=[InputRequired(message='Please enter the item price.')])
     item_description = StringField('item_description', validators=[InputRequired(message='Please enter the item description.')])
-    item_image = MultipleFileField('item_image', validators=[InputRequired(message='Please upload the item image.')])
+    item_image = FileField('item_image', validators=[InputRequired(message='Please upload the item image.')])
     item_category = SelectField('item_category', validators=[InputRequired(message='Please Select category')], choices=[
         ('SELECT ITEM CATEGORY', 'SELECT ITEM CATEGORY'),
         ('ACCESSORIES', 'ACCESSORIES'),

@@ -21,9 +21,13 @@
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">My Orders</a>
                             </li>
+                            {% for account in accounts%} 
+                            {% if account.role == 'seller' %}
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-items-link" data-toggle="tab" href="#tab-items" role="tab" aria-controls="tab-items" aria-selected="false">My Items</a>
                             </li>
+                            {% endif %}
+                            {% endfor %}
                             <li class="nav-item">
                                 <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Addresses</a>
                             </li>
@@ -130,9 +134,15 @@
                                                         <td class="product-col">
                                                             <div class="product">
                                                                 <figure class="product-media">
-                                                                    <a href="#">
+                                                                    {% if selleritem.item_image %}
+                                                                        <a href="#">
+                                                                            <img src="{{ url_for('display_image', image_path=selleritem.item_image) }}" alt="Uploaded Image">
+                                                                        </a>
+                                                                    {% else %}
+                                                                    <!-- <a href="#">
                                                                         <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image">
-                                                                    </a>
+                                                                    </a>  -->
+                                                                    {% endif %}
                                                                 </figure>
                         
                                                                 <h3 class="product-title">
@@ -152,7 +162,7 @@
                                     </div>
                                     {% endif %}
                                     </div>
-                                    <form id="editItem" style="display: none;" action="/account" method="POST">
+                                    <form id="editItem" style="display: none;" action="/account" method="POST" enctype="multipart/form-data">
                                         {{ seller_items.csrf_token() }}
                                         {% if seller_items.errors %}
                                             <div class="alert alert-danger" role="alert">
@@ -345,6 +355,7 @@
                                                             <p><label for="state">State: </label> {% if account.state is none%} {% else %}{{ account.state }} {% endif %}</p>
                                                             <p><label for="city">City: </label> {% if account.city is none%} {% else %}{{ account.city }} {% endif %}</p>
                                                             <p><label for="zip">Zip: </label> {% if account.zipcode is none%} {% else %}{{ account.zipcode }} {% endif %}</p>
+                                                            <!-- <p><label for="role">Role: </label> {{ account.role }}</p> -->
                                                         </div>
                                                     {% else %}
                                                     <p>Please Update account before entering shipping address</p>
