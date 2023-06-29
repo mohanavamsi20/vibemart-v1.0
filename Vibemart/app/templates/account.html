@@ -134,14 +134,14 @@
                                                         <td class="product-col">
                                                             <div class="product">
                                                                 <figure class="product-media">
-                                                                    {% if selleritem.item_image %}
+                                                                    {% if selleritem.item_image_file_name %}
                                                                         <a href="#">
-                                                                            <img src="{{ url_for('display_image', image_path=selleritem.item_image) }}" alt="Uploaded Image">
+                                                                            <img src="{{ url_for('display_image', image_path=selleritem.item_image_file_name) }}" alt="Uploaded Image">
                                                                         </a>
                                                                     {% else %}
-                                                                    <!-- <a href="#">
-                                                                        <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image">
-                                                                    </a>  -->
+                                                                        <a href="#">
+                                                                            <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image">
+                                                                        </a>
                                                                     {% endif %}
                                                                 </figure>
                         
