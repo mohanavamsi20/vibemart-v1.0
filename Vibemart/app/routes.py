@@ -1,4 +1,4 @@
-from flask import render_template,request, redirect, url_for, flash, session, send_from_directory
+from flask import render_template,request, redirect, url_for, flash, session, send_from_directory, send_file
 from app import app
 from app.models import *
 from app.forms import LoginForm, RegisterForm, AccountForm, AddressForm, SelleritemsForm
@@ -13,6 +13,7 @@ from io import BytesIO
 import os
 from werkzeug.utils import secure_filename
 import uuid
+import mimetypes
 UPLOAD_FOLDER = 'D:\\Devthon\\vibemart-v1.0\\Vibemart\\app\\static\\assets\\images\\vibemart'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -182,7 +183,7 @@ def seller_items_funtion(user_id,seller_items):
             item.item_price = seller_items.item_price.data
             item.item_quantity = seller_items.item_quantity.data
             item.item_category = seller_items.item_category.data
-            item.item_image = seller_items.item_image.data
+            item.item_image_file_name = seller_items.item_image_file_name.data
             item.item_current_status = seller_items.item_current_status.data
             item.item_offer_percentage = 0
             item.item_offer_price = 0
@@ -195,7 +196,7 @@ def seller_items_funtion(user_id,seller_items):
             item.item_price = seller_items.item_price.data
             item.item_quantity = seller_items.item_quantity.data
             item.item_category = seller_items.item_category.data
-            item.item_image = seller_items.item_image.data
+            item.item_image_file_name = seller_items.item_image_file_name.data
             item.item_current_status = seller_items.item_current_status.data
             item.item_offer_percentage = seller_items.item_offer_percentage.data
             item.item_offer_price = seller_items.item_offer_price.data
@@ -212,16 +213,11 @@ def seller_items_funtion(user_id,seller_items):
         flash('Item deleted successfully!', 'seller_item_success')
         return redirect(url_for('account'))
 
-# @app.route('/display/<path:filename>')
-# def display_image(filename):
-#     directory = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-#     print(directory)
-#     return send_from_directory(directory, filename)
-
-@app.route('/display/<path:image_path>')
+@app.route('/display_image/<image_path>')
 def display_image(image_path):
-    directory = os.path.join(app.config['UPLOAD_FOLDER'], image_path)
-    return send_from_directory(directory, os.path.basename(image_path))
+    upload_folder = app.config['UPLOAD_FOLDER']
+    mimetype, _ = mimetypes.guess_type(image_path)
+    return send_file(os.path.join(upload_folder, image_path), mimetype=mimetype)
 
 @app.route('/shop', methods=['GET', 'POST'])
 def shop():

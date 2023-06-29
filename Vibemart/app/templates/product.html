@@ -12,7 +12,7 @@
                                 <div class="product-gallery product-gallery-vertical">
                                     <div class="row">
                                         <figure class="product-main-image">
-                                            <img id="product-zoom" src="../static/assets/images/products/Lilac.jpeg" alt="product image">
+                                            <img src="{{ url_for('display_image', image_path=selleritems.item_image_file_name) }}" alt="Product image">
                                         </figure>
                                     </div>
                                 </div>

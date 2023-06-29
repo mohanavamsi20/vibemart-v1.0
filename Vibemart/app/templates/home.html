@@ -78,8 +78,8 @@
                             {% if selleritem.item_current_status == 'AVAILABLE' %}
                             <div class="product product-11 text-center">
                                 <figure class="product-media">
-                                    <a href="#">
-                                        <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image" class="product-image">
+                                    <a href="/product/{{selleritem.item_id}}">
+                                        <img src="{{ url_for('display_image', image_path=selleritem.item_image_file_name) }}" alt="Product image">
                                     </a>
 
                                     <div class="product-action-vertical">

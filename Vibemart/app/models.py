@@ -35,7 +35,6 @@ class Seller_items(db.Model):
     item_name=db.Column(db.String(120))
     item_price=db.Column(db.Integer)
     item_description=db.Column(db.String(120))
-    item_image=db.Column(db.String(120))
     item_image_file_name=db.Column(db.String(120))
     item_category=db.Column(db.String(120))
     item_current_status=db.Column(db.String(120))

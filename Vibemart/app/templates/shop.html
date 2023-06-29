@@ -33,14 +33,15 @@
 
                     <div class="products mb-3">
                         <div class="row justify-content-center">
+                            {% for selleritem in selleritems %}
                             <div class="col-6 col-md-4 col-lg-4 col-xl-3">
                                 <div class="product product-7 text-center">
-                                    {% for selleritem in selleritems %}
+                                    
                                     {% if selleritem.item_current_status == 'AVAILABLE' %}
                                     <figure class="product-media">
                                         <span class="product-label label-new">New</span>
                                         <a href="/product/{{selleritem.item_id}}">
-                                            <img src="../static/assets/images/products/Lilac.jpeg" alt="Product image" class="product-image">
+                                            <img src="{{ url_for('display_image', image_path=selleritem.item_image_file_name) }}" alt="Product image">
                                         </a>
                                         <div class="product-action">
                                             {% if 'user_id' in session %}
@@ -72,9 +73,10 @@
                                             <h3>NO ITEMS AVAILABLE</h3>
                                         </div>
                                     {% endif %}
-                                    {% endfor %}
+                                    
                                 </div>
                             </div>
+                            {% endfor %}
                         </div>
                     </div>
 
