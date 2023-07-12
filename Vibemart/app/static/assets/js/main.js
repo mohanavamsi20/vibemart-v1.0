@@ -830,3 +830,23 @@ function hideItemEditForm(){
     cancelItemLink.style.display = 'none';
     document.getElementById('sellerItemInfo').style.display = 'block';
 }
+
+function sortProducts(sortOption) {
+    var url = '/shop';
+    if (sortOption) {
+        url += '?sort=' + sortOption;
+    }
+    window.location.href = url;
+}
+
+function previewImage(event) {
+    var input = event.target;
+    if (input.files && input.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var imagePreview = input.previousElementSibling;
+        imagePreview.src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }

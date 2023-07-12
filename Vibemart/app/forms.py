@@ -2,7 +2,7 @@
 from flask_wtf import FlaskForm
 from wtforms import *
 from wtforms.validators import InputRequired, Length, ValidationError
-from app.models import User, Account
+from app.models import User, Account, Seller_items
 from app import db 
 
 class LoginForm(FlaskForm):
@@ -13,7 +13,7 @@ class LoginForm(FlaskForm):
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()
         if not user:
-            raise ValidationError('Email does not exist 1')
+            raise ValidationError('Email does not exist')
         if user.password != self.password.data:
             raise ValidationError('Password is incorrect')
         return user
@@ -60,7 +60,7 @@ class SelleritemsForm(FlaskForm):
     item_name = StringField('item_name', validators=[InputRequired(message='Please enter the item name.')])
     item_price = StringField('item_price', validators=[InputRequired(message='Please enter the item price.')])
     item_description = StringField('item_description', validators=[InputRequired(message='Please enter the item description.')])
-    item_image = FileField('item_image', validators=[InputRequired(message='Please upload the item image.')])
+    item_image = FileField('item_image', validators=[validators.Optional()])
     item_category = SelectField('item_category', validators=[InputRequired(message='Please Select category')], choices=[
         ('SELECT ITEM CATEGORY', 'SELECT ITEM CATEGORY'),
         ('ACCESSORIES', 'ACCESSORIES'),
@@ -85,11 +85,12 @@ class SelleritemsForm(FlaskForm):
     item_offer_start_date = DateField('item_offer_start_date', validators=[validators.Optional()])
     item_offer_end_date = DateField('item_offer_end_date', validators=[validators.Optional()])
     item_offer_status = SelectField('item_offer_status', validators=[validators.Optional()], choices=[
-        ('SELECT OFFER STATUS', 'SELECT OFFER STATUS'),
-        ('ON OFFER', 'ON OFFER'),
-        ('NOT ON OFFER', 'NOT ON OFFER'),
-        ('OFFER EXPIRED', 'OFFER EXPIRED'),
-    ])
+            ('SELECT OFFER STATUS', 'SELECT OFFER STATUS'),
+            ('ON OFFER', 'ON OFFER'),
+            ('NOT ON OFFER', 'NOT ON OFFER'),
+            ('OFFER EXPIRED', 'OFFER EXPIRED'),
+            ('TO BE ON OFFER', 'TO BE ON OFFER'),
+    ], default='NOT ON OFFER')
     submit = SubmitField('SALE THE ITEM', render_kw={'class': 'btn btn-outline-primary-2'})
     update = SubmitField('UPDATE THE ITEM', render_kw={'class': 'btn btn-outline-primary-2'})
     delete = SubmitField('DELETE THE ITEM', render_kw={'class': 'btn btn-outline-primary-2'})

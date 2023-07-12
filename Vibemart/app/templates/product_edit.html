@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% block title %}
+<title>
+    Edit Product
+</title>
+{% endblock title %}
+{% block content %}
+<div class="container">
+<form action="/product_edit/{{selleritem.item_id}}" method="POST">
+    {{ seller_items.csrf_token() }}
+    {% if seller_items.errors %}
+        <div class="alert alert-danger" role="alert">
+            {% for field_errors in seller_items.errors.values() %}
+                {% for error in field_errors %}
+                    {{ error }}
+                {% endfor %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    <div class="row">
+        <div class="col-sm-6">
+        <label for="itemname">Item Name *</label>
+        {% if selleritem.item_name %}
+            {{ seller_items.item_name(class='form-control', required='required', value=selleritem.item_name) }}
+        {% else %}
+            {{ seller_items.item_name(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+        <div class="col-sm-6">
+        <label for="itemprice">Item Price *</label>
+        {% if selleritem.item_price %}
+            {{ seller_items.item_price(class='form-control', required='required', value=selleritem.item_price) }}
+        {% else %}
+            {{ seller_items.item_price(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+        <label for="itemcategory">Item Category *</label>
+        {% if selleritem.item_category %}
+            {{ seller_items.item_category(class='form-control', required='required', value=selleritem.item_category) }}
+        {% else %}
+            {{ seller_items.item_category(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+        <div class="col-sm-6">
+        <label for="itemquantity">Item Quantity *</label>
+        {% if selleritem.item_quantity %}
+            {{ seller_items.item_quantity(class='form-control', required='required', value=selleritem.item_quantity) }}
+        {% else %}
+            {{ seller_items.item_quantity(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+        <label for="itemdescription">Item Description *</label>
+        {% if selleritem.item_description %}
+            {{ seller_items.item_description(class='form-control', required='required', value=selleritem.item_description) }}
+        {% else %}
+            {{ seller_items.item_description(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+        <div class="col-sm-6">
+        <label for="itemimage">Item Image *</label>
+        {% if selleritem.item_image_file_name %}
+            <img src="{{ url_for('display_image', image_path=selleritem.item_image_file_name) }}" alt="Product image", style="max-width: 100px; height: auto;background-color: white;">
+        {% else %}
+            {{ seller_items.item_image(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+        <label for="item_current_status">Item Current Status *</label>
+        {% if selleritem.item_current_status %}
+            {{ seller_items.item_current_status(class='form-control', required='required', value=selleritem.item_current_status) }}
+        {% else %}
+            {{ seller_items.item_current_status(class='form-control', required='required') }}
+        {% endif %}
+        </div>
+        <div class="col-sm-6">
+        <label for="item_offer_status">Item Offer Status</label>
+        {% if selleritem.item_offer_status %}
+            {{ seller_items.item_offer_status(class='form-control', value=selleritem.item_offer_status) }}
+        {% else %}
+            {{ seller_items.item_offer_status(class='form-control') }}
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+        <label for="item_offer_start_date">Item Offer Start Date</label>
+        {% if selleritem.item_offer_start_date %}
+            {{ seller_items.item_offer_start_date(class='form-control', value=selleritem.item_offer_start_date) }}
+        {% else %}
+            {{ seller_items.item_offer_start_date(class='form-control') }}
+        {% endif %}
+        </div>
+        <div class="col-sm-6">
+        <label for="item_offer_end_date">Item Offer End Date</label>
+        {% if selleritem.item_offer_end_date %}
+            {{ seller_items.item_offer_end_date(class='form-control', value=selleritem.item_offer_end_date) }}
+        {% else %}
+            {{ seller_items.item_offer_end_date(class='form-control') }}
+        {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <label for="item-offer-percentage">Item Offer Percentage</label>
+            {% if selleritem.item_offer_percentage %}
+                {{ seller_items.item_offer_percentage(class='form-control', value=selleritem.item_offer_percentage) }}
+            {% else %}
+                {{ seller_items.item_offer_percentage(class='form-control') }}
+            {% endif %}
+        </div>
+        <div class="col-sm-6">
+            <label for="item-offer-price">Item Offer Price</label>
+            {% if selleritem.item_offer_price %}
+                {{ seller_items.item_offer_price(class='form-control', value=selleritem.item_offer_price, readonly='true') }}
+            {% else %}
+                {{ seller_items.item_offer_price(class='form-control',readonly='true') }}
+            {% endif %}
+        </div>
+    </div>
+    <div class="container" align="center">
+    {{ seller_items.update(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+    {{ seller_items.delete(class='btn btn-outline-primary-2 mt-3 mb-3')}}
+    </div>
+</form>
+</div>
+{% endblock content %}

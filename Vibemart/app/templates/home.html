@@ -90,7 +90,12 @@
                                 <div class="product-body">
                                     <h3 class="product-title"><a href="#">{{ selleritem.item_name}}</a></h3><!-- End .product-title -->
                                     <div class="product-price">
-                                        $ {{ selleritem.item_price }}
+                                        {% if selleritem.item_offer_status == 'ON OFFER'%}
+                                            <span class="new-price">$ {{selleritem.item_offer_price}}</span>
+                                            <span class="old-price">$ {{selleritem.item_price}}</span>
+                                        {% else %}
+                                            $ {{selleritem.item_price}}
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="product-action">
@@ -98,7 +103,6 @@
                                 </div>
                             </div>
                             {% else %}
-                                <a class="nav-link">Items Not Listed Yet</a>
                             {% endif %}
                         {% endfor %}
                         </div>

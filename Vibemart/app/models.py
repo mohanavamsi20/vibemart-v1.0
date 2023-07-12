@@ -35,7 +35,7 @@ class Seller_items(db.Model):
     item_name=db.Column(db.String(120))
     item_price=db.Column(db.Integer)
     item_description=db.Column(db.String(120))
-    item_image_file_name=db.Column(db.String(120))
+    item_image_file_name=db.Column(db.String(500))
     item_category=db.Column(db.String(120))
     item_current_status=db.Column(db.String(120))
     item_quantity=db.Column(db.Integer)
@@ -46,7 +46,7 @@ class Seller_items(db.Model):
     item_offer_status=db.Column(db.String(120))
 
     def __repr__(self):
-        return f"Seller_items('{self.item_name}','{self.item_price}','{self.item_description}','{self.item_image}','{self.item_category}','{self.item_current_status}','{self.item_quantity}','{self.item_offer_percentage}','{self.item_offer_price}','{self.item_offer_start_date}','{self.item_offer_end_date}','{self.item_offer_status}')"
+        return f"Seller_items('{self.item_name}','{self.item_price}','{self.item_description}','{self.item_category}','{self.item_current_status}','{self.item_quantity}','{self.item_offer_percentage}','{self.item_offer_price}','{self.item_offer_start_date}','{self.item_offer_end_date}','{self.item_offer_status}')"
 
 
 class Cart(db.Model):
@@ -58,8 +58,11 @@ class Cart(db.Model):
     item_quantity=db.Column(db.Integer)
     item_category=db.Column(db.String(120))
     item_price=db.Column(db.Integer)
+    item_image_file_name=db.Column(db.String(500))
     item_total_price=db.Column(db.Integer)
     item_status=db.Column(db.String(120))
+    item_offer_status=db.Column(db.String(120))
+    item_offer_price = db.Column(db.Integer)
 
     def __repr__(self):
-        return f"Cart('{self.user_id}','{self.item_id}','{self.item_quantity}','{self.item_price}','{self.item_total_price}','{self.item_status}')"
+        return f"Cart('{self.user_id}','{self.item_id}','{self.item_quantity}','{self.item_price}','{self.item_total_price}','{self.item_status}','{self.item_offer_status}')"

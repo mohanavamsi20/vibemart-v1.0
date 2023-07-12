@@ -14,9 +14,15 @@ import os
 from werkzeug.utils import secure_filename
 import uuid
 import mimetypes
+from random import shuffle
+from flask_wtf.csrf import generate_csrf
+from sqlalchemy import or_
+import datetime
+import threading
+import time
+
 UPLOAD_FOLDER = 'D:\\Devthon\\vibemart-v1.0\\Vibemart\\app\\static\\assets\\images\\vibemart'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 @app.route('/')
 def home():
@@ -68,7 +74,13 @@ def account():
         update_account(user_id, account_form)
         return redirect(url_for('account'))
     if seller_items.validate_on_submit():
-        seller_items_funtion(user_id, seller_items)
+        if seller_items.item_category.data == 'SELECT ITEM CATEGORY':
+            flash('Please select a category!', 'seller_item_danger')
+            return redirect(url_for('account'))
+        if seller_items.item_current_status.data == 'SELECT ITEM STATUS':
+            flash('Please select a status!', 'seller_item_danger')
+            return redirect(url_for('account'))
+        seller_items_add(user_id, seller_items)
         return redirect(url_for('account'))
     return render_template('account.html',forms = account_form ,session=session, user_id=user_id, accounts=accounts, address_form=address_form, seller_items = seller_items, selleritems = selleritems, cart_orders=cart_orders)
 
@@ -123,13 +135,11 @@ def address_details(user_id,address_form):
     account.phone = address_form.phone.data
     db.session.commit()
 
-
-def seller_items_funtion(user_id,seller_items):
+def seller_items_add(user_id,seller_items):
     account = Account.query.filter_by(email=user_id).first()
-    if request.form['submit'] == 'SALE THE ITEM':
-        if 'item_image' in request.files:
+    if request.form.get("submit") == 'SALE THE ITEM':
+        if request.method == 'POST' and 'item_image' in request.files:
             item_picture = request.files['item_image']
-            # print(item_picture)
             if item_picture.filename != '':
                 image_id = str(uuid.uuid4())
                 image_folder = os.path.join(UPLOAD_FOLDER, image_id)
@@ -137,7 +147,10 @@ def seller_items_funtion(user_id,seller_items):
                 filename = secure_filename(item_picture.filename)
                 file_path = os.path.join(image_folder, filename)
                 item_picture.save(file_path)
-                # print(file_path)
+            else:
+                file_path = ''
+        else:
+            file_path = ''
         if seller_items.item_offer_percentage.data == '' and seller_items.item_offer_price.data == '' and seller_items.item_offer_start_date.data == '' and seller_items.item_offer_end_date.data == '':
             item = Seller_items(
                 seller_id=account.id,
@@ -170,48 +183,147 @@ def seller_items_funtion(user_id,seller_items):
             item_offer_end_date=seller_items.item_offer_end_date.data,
             item_offer_status=seller_items.item_offer_status.data
             )
-        # print(file_path)
         db.session.add(item)
         db.session.commit()
         flash('Item added successfully!', 'seller_item_success')
         return redirect(url_for('account'))
-    elif request.form['submit'] == 'UPDATE THE ITEM':
-        if seller_items.item_offer_percentage.data == '' and seller_items.item_offer_price.data == '' and seller_items.item_offer_start_date.data == '' and seller_items.item_offer_end_date.data == '':
-            item = Seller_items.query.get(item_id)
-            item.item_name = seller_items.item_name.data
-            item.item_description = seller_items.item_description.data
-            item.item_price = seller_items.item_price.data
-            item.item_quantity = seller_items.item_quantity.data
-            item.item_category = seller_items.item_category.data
-            item.item_image_file_name = seller_items.item_image_file_name.data
-            item.item_current_status = seller_items.item_current_status.data
-            item.item_offer_percentage = 0
-            item.item_offer_price = 0
-            item.item_offer_start_date = datetime.datetime.now()
-            item.item_offer_end_date = datetime.datetime.now()
+
+
+@app.route('/product_edit/<int:id>', methods=['GET', 'POST'])
+def product_edit(id):
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+    account = Account.query.filter_by(email=session['user_id']).first()
+    if account.role != 'seller':
+        return redirect(url_for('home'))
+    selleritem = Seller_items.query.filter_by(item_id=id).first()
+    seller_items = SelleritemsForm(obj=selleritem)
+    # print(selleritem)
+    if seller_items.validate_on_submit():
+        if request.form.get("update") == 'UPDATE THE ITEM':
+            selleritem_edit(selleritem, seller_items)
+            return redirect(url_for('account'))
+        elif request.form.get("delete") == 'DELETE THE ITEM':
+            db.session.delete(selleritem)
+            db.session.commit()
+            flash('Item deleted successfully!', 'seller_item_success')
+            return redirect(url_for('account'))
+    return render_template('product_edit.html', seller_items=seller_items, selleritem=selleritem, account=account,session=session)
+    
+
+def selleritem_edit(selleritem, seller_items):
+    if seller_items.item_name.data != selleritem.item_name:
+        selleritem.item_name = seller_items.item_name.data
+    if seller_items.item_description != selleritem.item_description:
+        selleritem.item_description = seller_items.item_description.data
+    if seller_items.item_price != selleritem.item_price:
+        selleritem.item_price = seller_items.item_price.data
+    if seller_items.item_quantity != selleritem.item_quantity:
+        selleritem.item_quantity = seller_items.item_quantity.data
+    if seller_items.item_category != selleritem.item_category:
+        selleritem.item_category = seller_items.item_category.data
+    if seller_items.item_current_status != selleritem.item_current_status:
+        selleritem.item_current_status = seller_items.item_current_status.data
+    if seller_items.item_offer_status.data != selleritem.item_offer_status:
+        if seller_items.item_offer_status.data == 'TO BE ON OFFER':
+            current_datetime = datetime.datetime.now().date()
+            offer_start_date = seller_items.item_offer_start_date.data
+            offer_end_date = seller_items.item_offer_end_date.data
+            if offer_start_date is not None and offer_end_date is not None:
+                    if offer_start_date > current_datetime:
+                        if offer_end_date > current_datetime:
+                            if seller_items.item_offer_percentage.data > 0:
+                                selleritem.item_offer_price = float(selleritem.item_price) - (float(selleritem.item_price) * float(seller_items.item_offer_percentage.data) / 100)
+                                selleritem.item_offer_status = seller_items.item_offer_status.data
+                                selleritem.item_offer_percentage = seller_items.item_offer_percentage.data
+                                selleritem.item_offer_start_date = seller_items.item_offer_start_date.data
+                                selleritem.item_offer_end_date = seller_items.item_offer_end_date.data
+                            else:
+                                flash('Offer percentage should be greater than 0', 'seller_item_danger')
+                                return redirect(url_for('account'))
+                            
+                        else:
+                            flash('Offer end date should be greater than current date', 'seller_item_danger')
+                            return redirect(url_for('account'))
+                    else:
+                        flash('Offer start date should be greater than current date', 'seller_item_danger')
+                        return redirect(url_for('account'))
+            else:
+                flash('Please select Offer Dates', 'seller_item_danger')
+                return redirect(url_for('account'))
+        elif seller_items.item_offer_status.data == 'ON OFFER':
+            current_datetime = datetime.datetime.now().date()
+            offer_start_date = seller_items.item_offer_start_date.data
+            offer_end_date = seller_items.item_offer_end_date.data
+            if offer_start_date is not None and offer_end_date is not None:
+                    if offer_start_date == current_datetime:
+                        if offer_end_date >= current_datetime:
+                            if seller_items.item_offer_percentage.data is not None and seller_items.item_offer_percentage.data > 0:
+                                selleritem.item_offer_price = float(selleritem.item_price) - (float(selleritem.item_price) * float(seller_items.item_offer_percentage.data) / 100)
+                                selleritem.item_offer_status = seller_items.item_offer_status.data
+                                selleritem.item_offer_percentage = seller_items.item_offer_percentage.data
+                                selleritem.item_offer_start_date = seller_items.item_offer_start_date.data
+                                selleritem.item_offer_end_date = seller_items.item_offer_end_date.data
+                            else:
+                                flash('Offer percentage should be greater than 0', 'seller_item_danger')
+                                return redirect(url_for('account'))
+                            
+                        else:
+                            flash('Offer end date should be equal to current date', 'seller_item_danger')
+                            return redirect(url_for('account'))
+                    else:
+                        flash('Offer start date should be equal to current date', 'seller_item_danger')
+                        return redirect(url_for('account'))
+            else:
+                flash('Please select Offer Dates', 'seller_item_danger')
+                return redirect(url_for('account'))
+        elif seller_items.item_offer_status.data == 'NOT ON OFFER':
+            selleritem.item_offer_status = seller_items.item_offer_status.data
+            selleritem.item_offer_percentage = 0
+            selleritem.item_offer_price = 0
+            selleritem.item_offer_start_date = None
+            selleritem.item_offer_end_date = None
+        elif seller_items.item_offer_status.data == 'OFFER EXPIRED':
+            selleritem.item_offer_status = seller_items.item_offer_status.data
         else:
-            item = Seller_items.query.get(item_id)
-            item.item_name = seller_items.item_name.data
-            item.item_description = seller_items.item_description.data
-            item.item_price = seller_items.item_price.data
-            item.item_quantity = seller_items.item_quantity.data
-            item.item_category = seller_items.item_category.data
-            item.item_image_file_name = seller_items.item_image_file_name.data
-            item.item_current_status = seller_items.item_current_status.data
-            item.item_offer_percentage = seller_items.item_offer_percentage.data
-            item.item_offer_price = seller_items.item_offer_price.data
-            item.item_offer_start_date = seller_items.item_offer_start_date.data
-            item.item_offer_end_date = seller_items.item_offer_end_date.data
-            item.item_offer_status = seller_items.item_offer_status.data
-        db.session.commit()
-        flash('Item updated successfully!', 'seller_item_success')
-        return redirect(url_for('account'))
-    elif request.form['submit'] == 'DELETE THE ITEM':
-        item = Seller_items.query.get(item_id)
-        db.session.delete(item)
-        db.session.commit()
-        flash('Item deleted successfully!', 'seller_item_success')
-        return redirect(url_for('account'))
+            flash('Please select remaining offer fields to get Offer', 'seller_item_danger')
+            return redirect(url_for('account'))
+    if seller_items.item_offer_start_date.data != selleritem.item_offer_start_date:
+        if seller_items.item_offer_start_date.data is not None:
+            current_datetime = datetime.datetime.now().date()
+            if seller_items.item_offer_start_date.data >= current_datetime:
+                selleritem.item_offer_start_date = seller_items.item_offer_start_date.data
+            else:
+                flash('Offer start date should be greater than current date', 'seller_item_danger')
+                return redirect(url_for('account'))
+    
+    if seller_items.item_offer_end_date.data != selleritem.item_offer_end_date:
+        if seller_items.item_offer_end_date.data is not None:
+            current_datetime = datetime.datetime.now().date()
+            if seller_items.item_offer_end_date.data >= current_datetime:
+                selleritem.item_offer_end_date = seller_items.item_offer_end_date.data
+            else:
+                flash('Offer end date should be greater than current date', 'seller_item_danger')
+                return redirect(url_for('account'))
+    if seller_items.item_offer_percentage.data != selleritem.item_offer_percentage:
+        if seller_items.item_offer_percentage.data is not None and seller_items.item_offer_percentage.data > 0:
+            selleritem.item_offer_price = float(selleritem.item_price) - (float(selleritem.item_price) * seller_items.item_offer_percentage.data / 100)
+            selleritem.item_offer_percentage = seller_items.item_offer_percentage.data
+        else:
+            flash('Offer percentage should be greater than 0', 'seller_item_danger')
+            return redirect(url_for('account'))
+
+    if request.method == 'POST' and 'item_image' in request.files:
+        item_picture = request.files['item_image']
+        if item_picture.filename != '':
+            image_id = str(uuid.uuid4())
+            image_folder = os.path.join(UPLOAD_FOLDER, image_id)
+            os.makedirs(image_folder, exist_ok=True)
+            filename = secure_filename(item_picture.filename)
+            file_path = os.path.join(image_folder, filename)
+            item_picture.save(file_path)
+    db.session.commit()
+    flash('Item updated successfully!', 'seller_item_success')
 
 @app.route('/display_image/<image_path>')
 def display_image(image_path):
@@ -221,15 +333,49 @@ def display_image(image_path):
 
 @app.route('/shop', methods=['GET', 'POST'])
 def shop():
-    selleritems = Seller_items.query.all()
-    return render_template('shop.html', title='Shop', selleritems=selleritems, session=session)
+    sort_option = request.args.get('sort')
+    search = request.form.get('search') or request.args.get('search_results')
+
+    if search:
+        search = f"%{search}%"
+        seller_items = Seller_items.query.filter(
+            or_(
+                Seller_items.item_name.like(search),
+                Seller_items.item_price.like(search),
+                Seller_items.item_category.like(search),
+                Seller_items.item_current_status.like(search)
+            )
+        ).all()
+    else:
+        seller_items = Seller_items.query.all()
+    
+    if sort_option == 'low_to_high':
+        seller_items.sort(key=lambda item: item.item_price)
+    elif sort_option == 'high_to_low':
+        seller_items.sort(key=lambda item: item.item_price, reverse=True)
+    else:
+        shuffle(seller_items)
+    
+    return render_template('shop.html', title='Shop', selleritems=seller_items, session=session)
+
+
+@app.route('/apply_filter', methods=['POST'])
+def apply_filter():
+    category = request.form.get('category')
+    if category == 'All':
+        return redirect(url_for('shop'))
+    else:
+        seller_items = Seller_items.query.filter(Seller_items.item_category.ilike(category)).all()
+        # print(seller_items)
+    return render_template('shop.html', title='Shop', selleritems=seller_items)
+
 
 @app.route('/shop/<int:item_id>/add-to-cart', methods=['GET', 'POST'])
 def add_to_cart(item_id):
     selleritems = Seller_items.query.get(item_id)
     user_id = session['user_id']
     account = Account.query.filter_by(email=user_id).first()
-    cart_item = Cart(item_id=selleritems.item_id, item_name= selleritems.item_name,item_price=selleritems.item_price, item_quantity=1, item_status='Pending', buyyer_id=account.id, seller_id=selleritems.seller_id)
+    cart_item = Cart(item_id=selleritems.item_id, item_name= selleritems.item_name,item_price=selleritems.item_price, item_quantity=1, item_image_file_name=selleritems.item_image_file_name,item_offer_status = selleritems.item_offer_status,item_offer_price = selleritems.item_offer_price ,item_status='Pending', buyyer_id=account.id, seller_id=selleritems.seller_id,)
     if cart_item.seller_id == account.id:
         flash('You cannot add your own item to cart!', 'cart_error')
         return redirect(url_for('cart'))
@@ -258,8 +404,12 @@ def cart():
     cart_items = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').all()
     total = 0
     for cart_item in cart_items:
-        total += cart_item.item_price
-    return render_template('cart.html', cart_items=cart_items,session=session, total=total)
+        if cart_item.item_offer_status == 'ON OFFER':
+            total += cart_item.item_offer_price
+        else:
+            total += cart_item.item_price
+    return render_template('cart.html', cart_items=cart_items, session=session, total=total)
+
 
 
 @app.route('/checkout', methods=['GET', 'POST'])
@@ -271,6 +421,9 @@ def checkout():
     cart_items = Cart.query.filter_by(buyyer_id=account.id).filter(Cart.item_status=='Pending').all()
     total = 0
     for cart_item in cart_items:
+        if cart_item.item_offer_status == 'ON OFFER':
+            total += cart_item.item_offer_price
+        else:
             total += cart_item.item_price
     if cart_items == []:
         flash('Your cart is empty!', 'cart_error')
@@ -294,18 +447,37 @@ def place_order():
     email = account.email
     total = 0
     for cart_item in cart_items:
-        total += cart_item.item_price
-    rendered_html = render_template('placeorder.html', name=name, email = email, cart_items=cart_items, account=account, session=session, total=total)
+        if cart_item.item_offer_status == 'ON OFFER':
+            total += cart_item.item_offer_price
+        else:
+            total += cart_item.item_price
 
-    pdf = generate_pdf(rendered_html)
-    send_email(email, rendered_html, pdf)
+    if account.address_line1 is None:
+        flash('Please Update your address for payment', 'order_success')
+        return redirect(url_for('checkout'))
+    else:
+        seller_item = Seller_items.query.filter_by(item_id=cart_item.item_id).first()
+        if seller_item.item_quantity == 0:
+            seller_item.item_current_status = 'OUT OF STOCK'
+            db.session.commit()
+            flash('Sorry! The item is out of stock', 'order_success')
+            return redirect(url_for('cart'))
+        else:
+            seller_item.item_quantity = seller_item.item_quantity - 1
+            if seller_item.item_quantity == 0:
+                seller_item.item_current_status = 'OUT OF STOCK'
+            db.session.commit()
+        rendered_html = render_template('placeorder.html', name=name, email = email, cart_items=cart_items, account=account, session=session, total=total)
 
-    for cart_item in cart_items:
-        cart_item.item_status = 'Ordered'
-    db.session.commit()
-    session.pop('cart', None)
-    flash('Your order has been placed successfully!', 'order_success')
-    return redirect(url_for('home'))
+        pdf = generate_pdf(rendered_html)
+        send_email(email, rendered_html, pdf)
+
+        for cart_item in cart_items:
+            cart_item.item_status = 'Ordered'
+        db.session.commit()
+        session.pop('cart', None)
+        flash('Your order has been placed successfully!', 'order_success')
+        return redirect(url_for('home'))
 
 def generate_pdf(html):
     pdf = BytesIO()
@@ -314,8 +486,8 @@ def generate_pdf(html):
 
 def send_email(to_email, html, pdf):
     # Email configuration
-    sender_email = 'abc@gmail.com'
-    sender_password = 'password'
+    sender_email = 'batchu.mohanavamsi@gmail.com'
+    sender_password = 'ljzffjuoayupmain'
     smtp_server = 'smtp.gmail.com'
     smtp_port = 587
 
@@ -339,6 +511,11 @@ def send_email(to_email, html, pdf):
         server.starttls()
         server.login(sender_email, sender_password)
         server.send_message(msg)
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html', title='About')
 
 @app.route('/logout')
 def logout():
